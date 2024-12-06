@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class = "container d-flex justify-content-center align-items-center min-vh-100">
+    <div class ="row-border rounded-5 p-3 bg-white shadow box-area">
+      <div class="rounded-4 d-flex justify-content-center flex-column left-box" style ="background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);">
+
+        <p class="text-white fw-bold mt-3 fs-2 text-center font-monospace">Be Verified</p>
+      </div>
+     {% if output %}
+      <div class="alert alert-primary mt-2" role="alert">
+        {{output}}
+       </div>
+     {% endif %}
+      <div class="right-box mt-2">
+             <div class ="row align-items-center">
+                 <div class="header-text">
+                   <p class="text-secondary fw-bold">Hello,Again!</p>
+
+                 </div>
+                 <form action ="/login/user" method="post">
+                        <div class="form-floating mb-3 ">
+                          <input type="email" class="form-control" id="floatingInput" name ="floatingInput" placeholder="name@example.com" required>
+                          <label for="floatingInput" style="margin-left:10px;" class="text-secondary">Email address</label>
+                        </div>
+                        <div class="form-floating mb-3" >
+                          <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name ="floatingPassword" required>
+                          <label for="floatingPassword" style="margin-left:10px;" class="text-secondary">Password</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                              Remember me
+                            </label>
+                          </div>
+                       
+                        <div class ="mb-3 text-center mt-2">
+                            <input type="submit" class="form-control btn btn-primary text-white fw-semibold " id="submit">
+                        </div>
+                 </form>
+                      <div class="mb-3">
+
+                        <label class="form-check-label text-secondary">Don't have an account?<span> </span><a href ="/" class ="text-secondary">Signup</a></label>
+                      </div>
+             </div>
+       </div>
+
+    </div>
+ </div>
+
+{% endblock %}
