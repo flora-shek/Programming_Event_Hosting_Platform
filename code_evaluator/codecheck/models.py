@@ -18,6 +18,12 @@ class UserModel:
         Retrieves a user document based on email.
         """
         return UserModel.collection.find_one({'email': email})
+    @staticmethod
+    def get_user_id(user_id):
+        """
+        Retrieves a user document based on email.
+        """
+        return UserModel.collection.find_one({'user_id': user_id})
 
     @staticmethod
     def update_user(email, updated_data):

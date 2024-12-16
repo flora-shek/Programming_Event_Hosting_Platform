@@ -7,7 +7,7 @@
              <p class="text-white fw-bold mt-3 fs-2 text-center font-monospace">Sign-Up</p>
            </div>
            {% if output %}
-           <div class="alert alert-primary mt-2" role="alert">
+           <div class="alert alert-{{theme}} mt-2" role="alert">
              {{output}}
            </div>
            {% endif %}
@@ -16,7 +16,7 @@
                       <div class="header-text">
                         <p class="text-secondary fw-bold">Hello!</p>
                       </div>
-                    <form action="user" method="POST">
+                    <form action="/register/" method="POST">
                             {% csrf_token %}
                             <div class="form-floating mb-3 ">
                              <input type="text" class="form-control" id="name" placeholder="name@example.com" required name="name">
@@ -58,7 +58,7 @@
                           
                            <div class="mb-3">
 
-                             <label class="form-check-label text-secondary">Already have an account?<span> </span><a href ="/login" class ="text-secondary">Signin</a></label>
+                             <label class="form-check-label text-secondary">Already have an account?<span> </span><a href ="/login/" class ="text-secondary">Signin</a></label>
                            </div>
                   </div>
             </div>

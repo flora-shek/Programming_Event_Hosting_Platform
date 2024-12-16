@@ -124,4 +124,6 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-MONGO_URI = 'mongodb+srv://florashek24:5aujbLlxkX76pbxh@uta-enrollment.7dmnt.mongodb.net//codecheck?retryWrites=true&w=majority'
+APPEND_SLASH = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
+SESSION_COOKIE_AGE = 3600
