@@ -16,37 +16,34 @@
                       <div class="header-text">
                         <p class="text-secondary fw-bold">Hello!</p>
                       </div>
-                    <form action="signup/user" method="post">
+                    <form action="user" method="POST">
+                            {% csrf_token %}
                             <div class="form-floating mb-3 ">
-                             <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" required name="floatingInput">
-                             <label for="floatingInput"  class="text-secondary">Name</label>
+                             <input type="text" class="form-control" id="name" placeholder="name@example.com" required name="name">
+                             <label for="name"  class="text-secondary">Name</label>
                            </div>
                            <div class="form-floating mb-3 ">
-                             <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" required name="floatingInput">
-                             <label for="floatingInput"  class="text-secondary">Email address</label>
+                             <input type="email" class="form-control" id="email" placeholder="name@example.com" required name="email">
+                             <label for="email"  class="text-secondary">Email address</label>
                            </div>
                           
                            <div class="form-floating mb-3" >
-                             <input type="password" class="form-control" id="floatingPassword" placeholder="Password" required name="floatingPassword">
+                             <input type="password" class="form-control" id="password" placeholder="Password" required name="password">
                              <label for="floatingPassword"  class="text-secondary">Create Password</label>
                            </div>
-                   
-                           <div class="form-floating mb-3" >
-                              <input type="password" class="form-control" id="floatingPassword1" placeholder="Password" required name ="floatingPassword1">
-                              <label for="floatingPassword"  class="text-secondary">Confirm Password</label>
-                            </div>
+                  
                              <div class = "row p-2">
                              <div class = "col">
                                 <p class="text-secondary">Select role</p>
                              </div>
                             <div class=" col form-check">
-                                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                    <input class="form-check-input" type="radio" name="role" id="flexRadioDefault1" value = "event organizer">
                                     <label class="form-check-label" for="flexRadioDefault1">
                                         Event Organizer
                                     </label>
                                 </div>
                                 <div class="col form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+                                <input class="form-check-input" type="radio" name="role" id="flexRadioDefault2" value ="user">
                                 <label class="form-check-label" for="flexRadioDefault2">
                                         User
                                 </label>
