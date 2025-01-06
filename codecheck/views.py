@@ -110,3 +110,6 @@ def logout(request):
     if 'user_id' in request.session:
         del request.session['user_id']
     return redirect('login')
+
+def forgotpass(request):
+     return render(request,'forgot.html')
