@@ -1,11 +1,14 @@
 from django.shortcuts import render,redirect
+from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.http import HttpResponse,JsonResponse
+from .email import YagmailWrapper
 from django.template import loader
 from .models import UserModel
 from werkzeug.security import generate_password_hash,check_password_hash
-
+import random
+import string
 def dashboard(request):
     return render(request, 'user_dashboard.html',{"role":True,"login":True})
 
@@ -106,10 +109,64 @@ def login(request):
     return render(request, 'login.html', {"output": "", "theme": "",'login':False})
     
 def logout(request):
-    
     if 'user_id' in request.session:
         del request.session['user_id']
     return redirect('login')
 
+def generate_otp(length=6):
+    characters = string.digits  
+    otp = ''.join(random.choice(characters) for i in range(length))
+    return otp
+
+@csrf_exempt
 def forgotpass(request):
-     return render(request,'forgot.html')
+     if request.method == 'POST':
+          email = request.POST.get('email')
+          yagmail = YagmailWrapper()
+          user = UserModel.get_user(str(email))
+          subject = 'password reset request'
+          expiry_time = datetime.now() + timedelta(minutes=10)
+          otp = generate_otp()
+          body = f"""
+    Hello {user.name},
+
+    We received a request to reset your password for your account in Code evaluator. To reset your password, please use the following One-Time Password (OTP):
+
+    **{otp}**
+
+    This OTP will expire in 10 minutes. If you did not request a password reset, you can safely ignore this email. Your account will remain secure.
+
+    If you need further assistance, feel free to reach out to our support team.
+
+    Best regards,
+    The Code evaluator Team
+    """
+          to = email
+          user.otp_code = otp
+          user.otp_expiry = expiry_time
+          user.save()
+   
+          success = yagmail.send_email(to, subject, body)
+
+          if success:
+                return HttpResponse('Email sent successfully!')
+          else:
+                return HttpResponse('Error sending email.')
+     return render(request,'forgot.html',{"title":"Password Reset",'content':"Enter your email address and we'll send you a link to reset your password."})
+
+def verify_otp(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        saved_otp = request.session.get('otp_code')
+        otp_expiry = request.session.get('otp_expiry')
+
+        if saved_otp and otp_expiry and datetime.now() < otp_expiry:
+            if entered_otp == saved_otp:
+                messages.success(request, 'OTP verified successfully. You can now reset your password.')
+                return redirect('reset_password')
+            else:
+                messages.error(request, 'Invalid OTP. Please try again.')
+        else:
+            messages.error(request, 'OTP has expired or is invalid. Please request a new one.')
+
+    return render(request,'forgot.html',{"title":"Verification",'content':"Enter your OTP recieved from your email and enter your new password."})
