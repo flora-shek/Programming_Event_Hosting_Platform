@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-
+    {% if output %}
+    <div class="alert alert-{{theme}} mt-2" role="alert">
+      {{output}}
+    </div>
+    {% endif %}
   <!-- Container for the Forgot Password form -->
   <div class="container d-flex justify-content-center align-items-center min-vh-100">
     <div class="card p-4 shadow-sm" style="max-width: 400px; width: 100%;">
@@ -21,9 +25,9 @@
         <button type="submit" class="btn btn-primary w-100">Send Reset Link</button>
       </form>
 
-      {% elif title == 'Verification' %}
+      {% elif title == 'Verify OTP' %}
       <!-- Verification Form -->
-      <form action="/forgotpass/" method="POST">
+      <form action="/verify/" method="POST">
         <div class="mb-3">
           <label for="otp" class="form-label">Enter the OTP</label>
           <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter the OTP" required>

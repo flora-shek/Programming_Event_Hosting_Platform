@@ -9,6 +9,10 @@ from .models import UserModel
 from werkzeug.security import generate_password_hash,check_password_hash
 import random
 import string
+from textwrap import dedent
+import hashlib
+
+
 def dashboard(request):
     return render(request, 'user_dashboard.html',{"role":True,"login":True})
 
@@ -119,54 +123,101 @@ def generate_otp(length=6):
     return otp
 
 @csrf_exempt
+
+
 def forgotpass(request):
-     if request.method == 'POST':
-          email = request.POST.get('email')
-          yagmail = YagmailWrapper()
-          user = UserModel.get_user(str(email))
-          subject = 'password reset request'
-          expiry_time = datetime.now() + timedelta(minutes=10)
-          otp = generate_otp()
-          body = f"""
-    Hello {user.name},
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        user = UserModel.get_user(str(email))
 
-    We received a request to reset your password for your account in Code evaluator. To reset your password, please use the following One-Time Password (OTP):
+        if user:
+            try:
+                yagmail = YagmailWrapper()
+                subject = 'Password Reset Request'
+                expiry_time = datetime.now() + timedelta(minutes=10)
+                otp = generate_otp()
 
-    **{otp}**
+                body = dedent(f"""
+                    Hello {user['name']},
 
-    This OTP will expire in 10 minutes. If you did not request a password reset, you can safely ignore this email. Your account will remain secure.
+                    We received a request to reset your password for your account in Code Evaluator. To reset your password, please use the following One-Time Password (OTP):
 
-    If you need further assistance, feel free to reach out to our support team.
+                    **{otp}**
 
-    Best regards,
-    The Code evaluator Team
-    """
-          to = email
-          user.otp_code = otp
-          user.otp_expiry = expiry_time
-          user.save()
-   
-          success = yagmail.send_email(to, subject, body)
+                    This OTP will expire in 10 minutes. If you did not request a password reset, you can safely ignore this email. Your account will remain secure.
 
-          if success:
-                return HttpResponse('Email sent successfully!')
-          else:
-                return HttpResponse('Error sending email.')
-     return render(request,'forgot.html',{"title":"Password Reset",'content':"Enter your email address and we'll send you a link to reset your password."})
+                    If you need further assistance, feel free to reach out to our support team.
 
+                    Best regards,
+                    The Code Evaluator Team
+                """)
+
+                otp_hash = hashlib.sha256(otp.encode()).hexdigest()
+                request.session['otp_code'] = otp_hash
+                request.session['otp_expiry'] = expiry_time.isoformat()
+                request.session['mail']= email
+                success = yagmail.send_email(email, subject, body)
+
+                if success:
+                    return render(request, 'forgot.html', {
+                        "title": "Password Reset",
+                        "content": "Enter your email address and we'll send you a link to reset your password.",
+                        "output": "Email Successfully Sent!",
+                        "theme": "success"
+                    })
+                else:
+                    raise Exception("Email sending failed.")
+            except Exception as e:
+                print(f"Error: {e}")
+                return render(request, 'forgot.html', {
+                    "title": "Password Reset",
+                    "content": "Enter your email address and we'll send you a link to reset your password.",
+                    "output": "Oops, error sending email.",
+                    "theme": "danger"
+                })
+
+        # Generic message to prevent user enumeration
+        return render(request, 'forgot.html', {
+            "title": "Password Reset",
+            "content": "If the email exists, a password reset link will be sent.",
+            "theme": "info"
+        })
+
+    return render(request, 'forgot.html', {
+        "title": "Password Reset",
+        "content": "Enter your email address and we'll send you a link to reset your password."
+    })
+@csrf_exempt
 def verify_otp(request):
     if request.method == 'POST':
         entered_otp = request.POST.get('otp')
+        newpass =  request.POST.get('password')
         saved_otp = request.session.get('otp_code')
         otp_expiry = request.session.get('otp_expiry')
+        email = request.session.get('mail')
+        # Convert expiry time back to datetime
+        if otp_expiry:
+            otp_expiry = datetime.fromisoformat(otp_expiry)
 
         if saved_otp and otp_expiry and datetime.now() < otp_expiry:
-            if entered_otp == saved_otp:
-                messages.success(request, 'OTP verified successfully. You can now reset your password.')
-                return redirect('reset_password')
-            else:
-                messages.error(request, 'Invalid OTP. Please try again.')
-        else:
-            messages.error(request, 'OTP has expired or is invalid. Please request a new one.')
+            # Hash entered OTP for secure comparison
+            entered_otp_hashed = hashlib.sha256(entered_otp.encode()).hexdigest()
 
-    return render(request,'forgot.html',{"title":"Verification",'content':"Enter your OTP recieved from your email and enter your new password."})
+            if entered_otp_hashed == saved_otp:
+                # Clear session variables after successful verification
+                request.session.pop('otp_code', None)
+                request.session.pop('otp_expiry', None)
+                hash = set_password(newpass)
+                UserModel.update_user(str(email),{"password":str(hash)})
+                return redirect('login')
+
+            else:
+                return render(request, 'forgot.html', {"title": "Verify OTP","content": "Enter the OTP received in your email to verify your identity.","output":'Invalid OTP. Please try again.',"theme": "danger"})
+        else:
+            
+            return render(request, 'forgot.html', {"title": "Verify OTP","content": "Enter the OTP received in your email to verify your identity.","output": "OTP has expired or is invalid. Please request a new one.","theme": "danger"})
+
+    return render(request, 'forgot.html', {
+        "title": "Verify OTP",
+        "content": "Enter the OTP received in your email to verify your identity."
+    })

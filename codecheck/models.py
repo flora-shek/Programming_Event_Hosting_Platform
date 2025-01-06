@@ -30,9 +30,10 @@ class UserModel:
         """
         Updates a user document based on email.
         """
-        return UserModel.collection.update_one(
+        result = UserModel.collection.update_one(
             {'email': email}, {'$set': updated_data}
         )
+        return result
 
     @staticmethod
     def delete_user(email):
