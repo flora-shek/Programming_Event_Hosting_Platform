@@ -6,6 +6,9 @@ from django.template import loader
 from .models import UserModel
 from werkzeug.security import generate_password_hash,check_password_hash
 
+def dashboard(request):
+    return render(request, 'user_dashboard.html',{"role":True,"login":True})
+
 def save_data(request):
    
     hash = UserModel.get_user("florashek24@gmail.com")['password']
@@ -16,7 +19,8 @@ def index(request):
     if 'user_id' in request.session:
         user_id = request.session['user_id']
         name = UserModel.get_user_id(user_id)["name"]
-        return render(request, 'home.html', {'username': name, 'message': 'Welcome back!'})
+        role = UserModel.get_user_id(user_id)["role"] == 'event organizer'
+        return render(request, 'home.html', {'username': name, 'message': 'Welcome back!','role' : role,'login':True })
     else:
         return redirect('login')  
 
@@ -60,11 +64,11 @@ def register(request):
 
         return render(request, 'register.html', {
             "output": "Successfully registered. Login to proceed!",
-            "theme": "success"
+            "theme": "success",'login':False
         })
 
     
-    return render(request, 'register.html', {"output": "", "theme": ""})
+    return render(request, 'register.html', {"output": "", "theme": "",'login':False })
 
 def set_password(password):
         g_password = generate_password_hash(password)
@@ -99,7 +103,7 @@ def login(request):
             return render(request, 'login.html', {"output": "Invalid email or password!", "theme": "danger"})
         
       
-    return render(request, 'login.html', {"output": "", "theme": ""})
+    return render(request, 'login.html', {"output": "", "theme": "",'login':False})
     
 def logout(request):
     

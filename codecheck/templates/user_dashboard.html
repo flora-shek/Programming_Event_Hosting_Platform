@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  body {
+
+    
+    color: #ffffff;
+  }
+
+  .dashboard-container {
+    padding: 40px;
+    background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);
+    background-size: cover;
+    background-attachment: fixed;
+  }
+
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    
+  }
+
+  .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg, #2d2f3a, #3a3e4c);
+    color: white;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #d1d1f1;
+  }
+
+  .btn-action {
+    background-color: #81a1eb;
+    color: white;
+    font-weight: 600;
+    border-radius: 50px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .btn-action:hover {
+    background-color: #b76daa;
+    transform: scale(1.05);
+  }
+
+  .progress-bar {
+    background-color: #b76daa;
+  }
+
+  .stats h3 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+
+  .stats p {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #aaa;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #d1d1f1;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Add subtle gradients for action buttons */
+  .btn-primary {
+    background: linear-gradient(145deg, #81a1eb, #b76daa);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-weight: 600;
+    border-radius: 30px;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(145deg, #b76daa, #81a1eb);
+  }
+
+  .list-unstyled li {
+    color: #ddd;
+  }
+</style>
+
+<div class=" dashboard-container">
+  <!-- Dashboard Header -->
+  <div class="dashboard-header">
+    <h1>Welcome Back, {{ user.username }}</h1>
+    <p>Your personalized programming dashboard is here.</p>
+  </div>
+
+  <!-- Row 1: Profile Overview and Quick Actions -->
+  <div class="row mb-4">
+    <!-- Profile Overview -->
+    <div class="col-md-4">
+      <div class="card p-3">
+        <div class="card-body">
+          <h5 class="card-title">Profile Overview</h5>
+          <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+          <p><strong>Email:</strong> {{ user.email }}</p>
+          <p><strong>Member Since:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+          <a href="" class="btn btn-action">Edit Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-md-8">
+      <div class="card p-3">
+        <div class="card-body">
+          <h5 class="card-title">Quick Actions</h5>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <a href="" class="btn btn-action w-100">Create New Event</a>
+            </div>
+            <div class="col-6 mb-3">
+              <a href="" class="btn btn-action w-100">View Events</a>
+            </div>
+            <div class="col-6">
+              <a href="" class="btn btn-action w-100">View Leaderboard</a>
+            </div>
+            <div class="col-6">
+              <a href="" class="btn btn-action w-100">Get Help</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Recent Activities and Statistics -->
+  <div class="row">
+    <!-- Recent Activities -->
+    <div class="col-md-8">
+      <div class="card p-3">
+        <div class="card-body">
+          <h5 class="card-title section-title">Recent Activities</h5>
+          <ul class="list-unstyled">
+            {% for activity in recent_activities %}
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success"></i> {{ activity.description }} 
+                <small class="text-muted">({{ activity.timestamp|timesince }} ago)</small>
+              </li>
+            {% empty %}
+              <li>No recent activities.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="col-md-4">
+      <div class="card p-3">
+        <div class="card-body text-center stats">
+          <h5 class="card-title section-title">Your Stats</h5>
+          <h3>{{ total_events }}</h3>
+          <p>Events Participated</p>
+          <h3>{{ total_wins }}</h3>
+          <p>Contests Won</p>
+          <h3>{{ total_points }}</h3>
+          <p>Leaderboard Points</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

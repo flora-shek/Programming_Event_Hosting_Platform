@@ -1,0 +1,52 @@
+<nav class="navbar navbar-expand-lg bg-body-dark shadow-sm fixed-top bg-white">
+    <div class="container-fluid">
+      <a class="navbar-brand col" href="/"><h5 class="text-secondary ">Coding Event</h5>
+      </a>
+      {% if login %}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Leaderboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href='/dashboard/'>Profile</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href = '/logout/'>Logout</a>
+            </li>
+          </ul>
+        </div>
+       
+      {% endif %}
+    </div>
+  </nav>
+  <div style ="height:50px;"></div>
+  <!--<header>
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #333;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Debugging Event</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
+          <li class="nav-item"><a class="nav-link" href="/leaderboard">Leaderboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contact">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/login">Login/Register</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>-->
