@@ -1,11 +1,11 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.http import HttpResponse,JsonResponse
 from .email import YagmailWrapper
 from django.template import loader
-from .models import UserModel
+from .models import UserModel,EventModel
 from werkzeug.security import generate_password_hash,check_password_hash
 import random
 import string
@@ -221,3 +221,24 @@ def verify_otp(request):
         "title": "Verify OTP",
         "content": "Enter the OTP received in your email to verify your identity."
     })
+
+def events(request):
+   
+    # Fetch all events initially
+    events = EventModel.all_event()
+    
+    if request.method == 'POST':
+        search_term = request.POST.get("esearch")
+        if search_term:
+            # Search events by the search term
+            events = EventModel.search_event(search_term)
+
+    for e in events:
+        e['start_date'] = datetime.strptime(e['start_date'], "%Y-%m-%dT%H:%M:%SZ")
+        e['end_date'] = datetime.strptime(e['end_date'], "%Y-%m-%dT%H:%M:%SZ")
+    context = {
+        'events': events,
+    }
+
+    return render(request, 'event.html', context)
+

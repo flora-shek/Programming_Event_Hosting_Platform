@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+  <div class="container">
+      <nav class="navbar mt-3 p-3 rounded shadow-sm" style="background-color:rgba(207, 199, 253, 0.85);">
+          <div class="container-fluid">
+              <h2 class="section-title text-center" data-aos="fade-up">Upcoming Events</h2>
+
+              <form class="d-flex w-50 mx-auto" method = "post" role="search">
+              {% csrf_token %}
+                  <input class="form-control me-2" name = "esearch" id ="esearch" type="search" placeholder="Search for Events" aria-label="Search">
+                  <button class="btn btn-primary" type="submit">Search</button>
+              </form>
+          </div>
+      </nav>
+
+      {% for x in events %}
+      <div class="card mb-4 card-hover" data-aos="fade-up">
+          <div class="row g-0">
+              <div class="col-12">
+                  <div class="card-body d-flex justify-content-between align-items-center">
+                      <!-- Event Title and Description -->
+                      <div>
+                          <h5 class="card-title">{{ x.name }}</h5>
+                          <p class="text-muted">
+                              Start Date: {{ x.start_date|date:"F j, Y H:i" }} <br>
+                              End Date: {{ x.end_date|date:"F j, Y H:i" }}<br>
+                              Status: {{ x.status }}
+                          </p>
+                      </div>
+
+                      <!-- Registration Button aligned to the right -->
+                      <a href="{% url 'event_detail' event_id=x.event_id %}" class="btn btn-primary">
+                          Register
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+      {% endfor %}
+  
+  </div>
+
+{% endblock %}
