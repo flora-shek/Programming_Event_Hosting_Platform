@@ -1,5 +1,5 @@
-from django.shortcuts import render,redirect,get_object_or_404
-from datetime import datetime, timedelta
+from django.shortcuts import render,redirect
+from datetime import datetime, timedelta,timezone
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.http import HttpResponse,JsonResponse
@@ -11,7 +11,7 @@ import random
 import string
 from textwrap import dedent
 import hashlib
-
+from django.contrib import messages
 
 def dashboard(request):
     return render(request, 'user_dashboard.html',{"role":True,"login":True})
@@ -226,6 +226,7 @@ def events(request):
    
     # Fetch all events initially
     events = EventModel.all_event()
+    current_time =  datetime.now(timezone.utc)
     
     if request.method == 'POST':
         search_term = request.POST.get("esearch")
@@ -236,9 +237,21 @@ def events(request):
     for e in events:
         e['start_date'] = datetime.strptime(e['start_date'], "%Y-%m-%dT%H:%M:%SZ")
         e['end_date'] = datetime.strptime(e['end_date'], "%Y-%m-%dT%H:%M:%SZ")
+        
     context = {
         'events': events,
     }
 
     return render(request, 'event.html', context)
 
+def event_details(request,id):
+    if request.method == 'POST':
+        messages.success(request,"Successfully registered for event")
+    events = EventModel.get_event_id(int(id))
+    for e in events:
+        e['start_date'] = datetime.strptime(e['start_date'], "%Y-%m-%dT%H:%M:%SZ")
+        e['end_date'] = datetime.strptime(e['end_date'], "%Y-%m-%dT%H:%M:%SZ")
+    context = {
+        'event': events[0],
+    }
+    return render(request, 'event_details.html', context)

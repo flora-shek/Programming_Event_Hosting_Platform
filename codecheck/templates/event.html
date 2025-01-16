@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
+    
   <div class="container">
       <nav class="navbar mt-3 p-3 rounded shadow-sm" style="background-color:rgba(207, 199, 253, 0.85);">
           <div class="container-fluid">
@@ -31,8 +31,8 @@
                       </div>
 
                       <!-- Registration Button aligned to the right -->
-                      <a href="{% url 'event_detail' event_id=x.event_id %}" class="btn btn-primary">
-                          Register
+                      <a href="{% url 'event_details' id=x.event_id %}" class="btn btn-primary">
+                          View Details
                       </a>
                   </div>
               </div>

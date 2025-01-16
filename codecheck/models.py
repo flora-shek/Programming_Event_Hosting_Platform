@@ -85,6 +85,16 @@ class EventModel:
     @staticmethod
     def get_event_id(event_id):
         """
-        Retrieves a user document based on email.
+        Retrieves a user document based on id.
         """
-        return EventModel.collection.find_one({'event_id': event_id})
+        cursor = EventModel.collection.find({'event_id': event_id}).limit(1)
+        return list(cursor)
+    @staticmethod
+    def update_event(event_id, updated_data):
+        """
+        Updates a user document based on email.
+        """
+        result = UserModel.collection.update_one(
+            {'event_id': event_id}, {'$set': updated_data}
+        )
+        return result
