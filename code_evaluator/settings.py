@@ -127,14 +127,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 APPEND_SLASH = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
 SESSION_COOKIE_AGE = 36000
-
+SESSION_SAVE_EVERY_REQUEST = True
 # settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'florashek24@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'hfhp vwiw kswj mdml'  # Use app password if 2FA is enabled
+EMAIL_HOST_USER = 'florashek24@gmail.com'  
+EMAIL_HOST_PASSWORD = 'hfhp vwiw kswj mdml'  
+LOGIN_URL = '/login/'  
 
 

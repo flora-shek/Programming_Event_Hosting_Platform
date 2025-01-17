@@ -13,8 +13,8 @@ from textwrap import dedent
 import hashlib
 from django.contrib import messages
 
-def dashboard(request):
-    return render(request, 'user_dashboard.html',{"role":True,"login":True})
+
+
 
 def save_data(request):
    
@@ -26,8 +26,8 @@ def index(request):
     if 'user_id' in request.session:
         user_id = request.session['user_id']
         name = UserModel.get_user_id(user_id)["name"]
-        role = UserModel.get_user_id(user_id)["role"] == 'event organizer'
-        return render(request, 'home.html', {'username': name, 'message': 'Welcome back!','role' : role,'login':True })
+        messages.success(request,f"Welcome back! {name}")
+        return render(request, 'home.html',{'login':True})
     else:
         return redirect('login')  
 
@@ -90,8 +90,6 @@ def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        
-
         user = UserModel.get_user(str(email))
         
         if user:
@@ -110,8 +108,7 @@ def login(request):
             return render(request, 'login.html', {"output": "Invalid email or password!", "theme": "danger"})
         
       
-    return render(request, 'login.html', {"output": "", "theme": "",'login':False})
-    
+    return render(request, 'login.html', {"output": "", "theme": "",'login':False}) 
 def logout(request):
     if 'user_id' in request.session:
         del request.session['user_id']
@@ -240,6 +237,8 @@ def events(request):
         
     context = {
         'events': events,
+        'login':True,
+        
     }
 
     return render(request, 'event.html', context)
@@ -253,5 +252,44 @@ def event_details(request,id):
         e['end_date'] = datetime.strptime(e['end_date'], "%Y-%m-%dT%H:%M:%SZ")
     context = {
         'event': events[0],
+         'login':True,
+        
     }
     return render(request, 'event_details.html', context)
+
+
+def register_for_event(request, event_id):
+    if request.method == "POST":
+        # Ensure the user is logged in
+        u_id = request.session.get("user_id")
+        if not u_id:
+            messages.error(request, "You must be logged in to register for an event.")
+            return redirect('login')  
+
+        # Get the event
+        event = EventModel.get_event_id(int(event_id))
+      
+        if int(u_id) in event[0]["registrations"]:
+            messages.warning(request, "You are already registered for this event.")
+        else:
+            # Add user to the registrations list
+             EventModel.collection.update_one(
+            {"event_id": int(event_id)},
+            {"$addToSet": {"registrations": int(u_id)}}  # Ensures no duplicates
+        )
+
+             messages.success(request, "Successfully registered for the event!")
+
+        return redirect('events')  # Redirect to the events page
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=400)
+    
+def dashboard(request):
+    u_id = request.session.get("user_id")
+    user_events = EventModel.get_user_events(int(u_id))
+    context = {
+        'events': user_events,
+        'login':True,
+    }
+
+    return render(request, 'user_dashboard.html',context)

@@ -94,7 +94,18 @@ class EventModel:
         """
         Updates a user document based on email.
         """
-        result = UserModel.collection.update_one(
+        result = EventModel.collection.update_one(
             {'event_id': event_id}, {'$set': updated_data}
         )
         return result
+    @staticmethod
+    def get_user_events(id):
+    # Replace `request.user.username` with the username you are searching for
+    
+    
+    # Query events where 'username' exists in the registrations array
+        user_events = EventModel.collection.find({"registrations": id})
+        
+        # Convert the result to a list if needed
+        user_events_list = list(user_events)
+        return user_events_list

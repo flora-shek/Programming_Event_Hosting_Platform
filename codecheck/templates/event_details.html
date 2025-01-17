@@ -8,7 +8,7 @@
     </div>
     <div class="shadow p-3 mb-5 rounded" style ="background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);" >
        <div class="container p-3" style ="background:white;" >
-         <form method="post">   
+         <form method="post" action="{% url 'register_for_event' event.event_id %}">   
              {% csrf_token %}
              <div class ="row mt-3 mb-2">
                 <p><strong>Description</strong> <br> {{ event.description }}</p>
