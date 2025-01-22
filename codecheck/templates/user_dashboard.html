@@ -3,7 +3,7 @@
 {% block content %}
     
   <div class="container">
-      <nav class="navbar mt-3 p-3 rounded shadow-sm" style="background-color:rgba(207, 199, 253, 0.85);">
+      <nav class="navbar mt-3 p-3 rounded shadow-sm mb-4" style="background-color:rgba(207, 199, 253, 0.85);">
           <div class="container-fluid">
               <h2 class="section-title text-center" data-aos="fade-up">My Events</h2>
 
@@ -20,22 +20,28 @@
                       <div>
                           <h5 class="card-title">{{ x.name }}</h5>
                           <p class="text-muted">
-                              Start Date: {{ x.start_date|date:"F j, Y H:i" }} <br>
-                              End Date: {{ x.end_date|date:"F j, Y H:i" }}<br>
-                              Status: {{ x.status }}
+                             <strong> Description :</strong> {{x.description}}<br>
+                              <strong>Start Date:</strong> {{ x.start_date|date:"F j, Y" }} <br>
+                              <strong>End Date:</strong> {{ x.end_date|date:"F j, Y " }}<br>
+                             <strong> Status:</strong> {{ x.status }}
                           </p>
                       </div>
 
                       <!-- Registration Button aligned to the right -->
-                      <a href="{% url 'event_details' id=x.event_id %}" class="btn btn-primary">
-                          View Details
+                      <a href="{% url 'code' x.event_id %}" class="btn btn-primary {% if x.notattend %} disabled {% endif %}">
+                          Attend
                       </a>
                   </div>
               </div>
           </div>
       </div>
       {% endfor %}
-  
+    <nav class="navbar mt-3 p-3 rounded shadow-sm mb-4" style="background-color:rgba(207, 199, 253, 0.85);">
+          <div class="container-fluid">
+              <h2 class="section-title text-center" data-aos="fade-up">Attended Events</h2>
+          </div>
+      </nav>
+
   </div>
 
 {% endblock %}

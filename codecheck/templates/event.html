@@ -3,7 +3,7 @@
 {% block content %}
     
   <div class="container">
-      <nav class="navbar mt-3 p-3 rounded shadow-sm" style="background-color:rgba(207, 199, 253, 0.85);">
+      <nav class="navbar mt-3 p-3 rounded shadow-sm mb-3" style="background-color:rgba(207, 199, 253, 0.85);">
           <div class="container-fluid">
               <h2 class="section-title text-center" data-aos="fade-up">Upcoming Events</h2>
 
@@ -24,9 +24,9 @@
                       <div>
                           <h5 class="card-title">{{ x.name }}</h5>
                           <p class="text-muted">
-                              Start Date: {{ x.start_date|date:"F j, Y H:i" }} <br>
-                              End Date: {{ x.end_date|date:"F j, Y H:i" }}<br>
-                              Status: {{ x.status }}
+                              <strong>Registration Start Date: </strong> {{ x.registration_startdate|date:"F j, Y" }} <br>
+                              <strong>Registration End Date: </strong>{{ x.registration_enddate|date:"F j, Y" }}<br>
+                              <strong> Status: </strong>{{ x.status }}
                           </p>
                       </div>
 

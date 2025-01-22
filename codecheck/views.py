@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from datetime import datetime, timedelta,timezone
+from datetime import datetime, timedelta,date
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.http import HttpResponse,JsonResponse
@@ -12,10 +12,10 @@ import string
 from textwrap import dedent
 import hashlib
 from django.contrib import messages
+import pytz
 
 
-
-
+TODAY = date.today()
 def save_data(request):
    
     hash = UserModel.get_user("florashek24@gmail.com")['password']
@@ -25,7 +25,7 @@ def save_data(request):
 def index(request):
     if 'user_id' in request.session:
         user_id = request.session['user_id']
-        name = UserModel.get_user_id(user_id)["name"]
+        name = UserModel.get_user_id(user_id)[0]["name"]
         messages.success(request,f"Welcome back! {name}")
         return render(request, 'home.html',{'login':True})
     else:
@@ -112,6 +112,7 @@ def login(request):
 def logout(request):
     if 'user_id' in request.session:
         del request.session['user_id']
+        messages.success(request,f"Successfully logged out!")
     return redirect('login')
 
 def generate_otp(length=6):
@@ -218,26 +219,35 @@ def verify_otp(request):
         "title": "Verify OTP",
         "content": "Enter the OTP received in your email to verify your identity."
     })
+def event_status(today,event):
+    start_date = event['start_date'].date()
+    end_date = event['end_date'].date()
 
+    
+    if today < start_date:
+        event_status = "Upcoming"
+    elif start_date <= today <= end_date:
+        event_status = "Ongoing"
+    else:
+        event_status = "Finished"
+    return event_status
 def events(request):
    
     # Fetch all events initially
     events = EventModel.all_event()
-    current_time =  datetime.now(timezone.utc)
+   
     
     if request.method == 'POST':
         search_term = request.POST.get("esearch")
         if search_term:
             # Search events by the search term
             events = EventModel.search_event(search_term)
-
     for e in events:
-        e['start_date'] = datetime.strptime(e['start_date'], "%Y-%m-%dT%H:%M:%SZ")
-        e['end_date'] = datetime.strptime(e['end_date'], "%Y-%m-%dT%H:%M:%SZ")
-        
+        e['status'] = event_status(TODAY,e)
     context = {
         'events': events,
         'login':True,
+      
         
     }
 
@@ -248,11 +258,16 @@ def event_details(request,id):
         messages.success(request,"Successfully registered for event")
     events = EventModel.get_event_id(int(id))
     for e in events:
-        e['start_date'] = datetime.strptime(e['start_date'], "%Y-%m-%dT%H:%M:%SZ")
-        e['end_date'] = datetime.strptime(e['end_date'], "%Y-%m-%dT%H:%M:%SZ")
+        e['status'] = event_status(TODAY,e)
+    if TODAY > events[0]["registration_enddate"].date():
+        disable = True
+    else:
+        disable = False
+
     context = {
         'event': events[0],
-         'login':True,
+         'login':False,
+         'disable': disable
         
     }
     return render(request, 'event_details.html', context)
@@ -268,28 +283,76 @@ def register_for_event(request, event_id):
 
         # Get the event
         event = EventModel.get_event_id(int(event_id))
-      
+        event_name = event[0]['name']
+        mail = UserModel.get_user_id(int(u_id))
+        email = mail[0]['name'] #key error
+
+        if TODAY < event[0]['registration_startdate'].date():
+            messages.error(request, "Registration for this event has not started yet.")
+            return redirect('events')
+        elif TODAY > event[0]['registration_enddate'].date():
+            messages.error(request, "Registration for this event has already closed.")
+            return redirect('events')
+        
         if int(u_id) in event[0]["registrations"]:
             messages.warning(request, "You are already registered for this event.")
         else:
             # Add user to the registrations list
              EventModel.collection.update_one(
             {"event_id": int(event_id)},
-            {"$addToSet": {"registrations": int(u_id)}}  # Ensures no duplicates
+            {"$addToSet": {"registrations": int(u_id)}}  
         )
 
              messages.success(request, "Successfully registered for the event!")
+       
+             yagmail = YagmailWrapper()
+             subject = 'Event Registration Confirmed'
+                
 
-        return redirect('events')  # Redirect to the events page
+             body = dedent(f"""
+                    Hello there,
+
+                    You have been successfully registered for the event '{event_name}' from your account in Code Evaluator. 
+
+                    If you need further assistance, feel free to reach out to our support team.
+
+                    Best regards,
+                    The Code Evaluator Team
+                """)
+
+                
+            
+             success = yagmail.send_email(email, subject, body)
+
+        return redirect('events')  
     else:
         return JsonResponse({"error": "Invalid request method."}, status=400)
     
 def dashboard(request):
     u_id = request.session.get("user_id")
     user_events = EventModel.get_user_events(int(u_id))
+    for e in user_events:
+        e['status'] = event_status(TODAY,e)
+        if TODAY == e["start_date"].date() or( TODAY > e["start_date"].date() and TODAY < e["end_date"].date()) or TODAY == e["start_date"].date():
+            e['notattend'] = False
+        else:
+           e['notattend'] = False
+
+   
     context = {
         'events': user_events,
         'login':True,
+        
     }
 
     return render(request, 'user_dashboard.html',context)
+
+def code(request,event_id):
+    event_details = EventModel.get_event_id(event_id)
+    context = {'problem':event_details[0]}
+    return render(request,"code.html", context)
+
+def submit(request):
+     messages.success(request,f"Successfully Submitted")
+     return redirect('index')
+    
