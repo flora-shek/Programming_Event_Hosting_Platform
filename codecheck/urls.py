@@ -13,8 +13,7 @@ urlpatterns = [
     path('events/<str:id>', views.event_details, name='event_details'),
     path('events/<int:event_id>/register/', views.register_for_event, name='register_for_event'),
     path('event/<int:event_id>/problems', views.code, name="code"),
-    path('submit/', views.submit,name='submit'),
-
+     path('submit/<int:problem_id>/', views.submit, name='submit'),
     
    
 ]

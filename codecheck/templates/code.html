@@ -1,15 +1,17 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <div class="container mb-5">
-      <div class="text-center mt-5 mb-5">
-            <h3 class ="fs-2">{{problem.name}}</h3>
-            <p class="fw-semibold fs-6 mb-4 text-secondary">question,difficulty</p>
-      </div>
-      <div class="shadow p-3 mb-5 rounded" style ="background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);">
-         <div class="container">
-           <form action ="/submit/" method="post">   
-               <div class="row">
+<div class="container mb-5">
+  <div class="text-center mt-5 mb-5">
+        <h3 class ="fs-2">{{problem.title}}</h3>
+        <p class="fw-bold fs-6 mb-4 text-secondary">{{problem.description}}</p>
+  </div>
+        <ul><li><b>Input Format:</b>
+          {{problem.input_format}}</li><li><b>Output Format: </b>{{problem.output_format}} </li><li><b>Sample Input: </b>{{problem.sample_input}} </li><li><b>Sample Output: </b>{{problem.sample_output}} </li></ul>
+  <br>
+  <div class="shadow p-3 mb-5 rounded" style ="background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);">
+    <div class="container">
+       <div class="row">
                  <div class="col">
                    <h5 class="text-white fw-semibold">Your code</h5>
                  </div>
@@ -18,29 +20,29 @@
                      <button class="btn btn-primary disabled" type="button">
                        Python
                      </button>
-                   </div>
-                 </div>
-               </div>
-               <div class ="row mt-3 mb-2">
-                 <div class ="col">
-                    <div class="form-floating">
-                      <textarea class="form-control"  id="editor" name ="editor" style="height: 230px" required></textarea>
-                      
-                      {% include 'codemirrorscript.html' %}
-                    </div>
-                 </div>
-             </div>
-             
-             
-               <div class="col text-end mt-3">
-                  <button type="submit" class="btn btn-primary">Submit</button>
-               </div>
-              
-            
-           </form>
-          
-           </div>
+                  </div>
+          </div>
+        </div>
+ <div class ="row mt-3 mb-2">
+  <div class ="col">
+    <div class="form-floating">        
+      <form action="{% url 'submit' problem_id=problem.problem_id %}" method="post">
+        {% csrf_token %}
+        <textarea id="editor" name ="editor" style="height: 230px; display: block;" ></textarea>
+        {% include 'codemirrorscript.html' %}
       </div>
-      
     </div>
+</div>
+<div class="col text-end mt-3">
+  <button type="submit" class="btn btn-primary">Submit</button>
+</div>
+
+
+</form>
+
+</div>
+</div>
+
+</div>
+    
 {% endblock %}

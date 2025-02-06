@@ -5,22 +5,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
 <script>
-    // Initialize CodeMirror editor
-    var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-        mode: "python",          // Set language mode
-        theme: "eclipse",            // Set theme
-        lineNumbers: true,           // Show line numbers
-        tabSize: 2,                  // Set tab size
-        indentWithTabs: true,
-        autoCloseBrackets: {
-            pairs: "[](){}''\"\"<>",  // Define the pairs of characters to auto-close
-            triples: "'''\"\"\"",      // Define triple-quotes (for Python, etc.)
-            explode: "[]{}()"         // Enable/disable auto-closing for certain characters
-        },
-        extraKeys: {
-            "Ctrl-Space": "autocomplete"  // Trigger autocomplete with Ctrl+Space
+    window.onload = function() {
+        var textarea = document.getElementById("editor");
+        if (!textarea) {
+            console.error("Textarea with id 'editor' not found!");
+            return;
         }
-        
-    });     
-  
+
+        // Initialize CodeMirror
+        var editor = CodeMirror.fromTextArea(textarea, {
+            mode: "python",
+            theme: "eclipse",
+            lineNumbers: true,
+            tabSize: 2,
+            indentWithTabs: true,
+            autoCloseBrackets: {
+                pairs: "[](){}''\"\"<>",
+                triples: "'''\"\"\"",
+                explode: "[]{}()"
+            },
+            extraKeys: {
+                "Ctrl-Space": "autocomplete"
+            }
+        });
+
+        // Ensure textarea gets updated before form submission
+        document.querySelector("form").onsubmit = function() {
+            textarea.value = editor.getValue();
+            console.log("Submitting:", textarea.value);  // Debugging output
+        };
+    };
 </script>

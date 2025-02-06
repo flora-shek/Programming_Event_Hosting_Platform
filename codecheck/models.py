@@ -100,12 +100,38 @@ class EventModel:
         return result
     @staticmethod
     def get_user_events(id):
-    # Replace `request.user.username` with the username you are searching for
-    
-    
-    # Query events where 'username' exists in the registrations array
+   
         user_events = EventModel.collection.find({"registrations": id})
         
-        # Convert the result to a list if needed
+       
         user_events_list = list(user_events)
         return user_events_list
+
+class ProblemModel:
+    collection = mongo_db['problems']
+
+    @staticmethod
+    def all_event():
+        return list(EventModel.collection.find({}))
+    @staticmethod
+    def get_problems_id(event_id):
+        """
+        Retrieves a problem document based on event id
+        """
+        cursor = ProblemModel.collection.find({'event_id': event_id})
+        return list(cursor)
+    
+class SubmissionModel:
+    collection = mongo_db['problems']
+    @staticmethod
+    def insert(data):
+       
+        return SubmissionModel.collection.insert_one(data).inserted_id
+    @staticmethod
+    def find(problem_id,user_id):
+        pass
+    @staticmethod
+    def count():
+      
+        return SubmissionModel.collection.count_documents({})
+    

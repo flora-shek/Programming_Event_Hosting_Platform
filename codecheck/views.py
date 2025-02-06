@@ -5,7 +5,7 @@ from datetime import datetime
 from django.http import HttpResponse,JsonResponse
 from .email import YagmailWrapper
 from django.template import loader
-from .models import UserModel,EventModel
+from .models import UserModel,EventModel,ProblemModel,SubmissionModel
 from werkzeug.security import generate_password_hash,check_password_hash
 import random
 import string
@@ -348,11 +348,33 @@ def dashboard(request):
     return render(request, 'user_dashboard.html',context)
 
 def code(request,event_id):
-    event_details = EventModel.get_event_id(event_id)
-    context = {'problem':event_details[0]}
+    problem_details = ProblemModel.get_problems_id(event_id)
+    context = {'problem':problem_details[0]}
     return render(request,"code.html", context)
 
-def submit(request):
-     messages.success(request,f"Successfully Submitted")
-     return redirect('index')
-    
+def submit(request,problem_id):
+    if request.method == "POST":
+        code = request.POST.get("editor")  
+        
+        if not code:
+            return JsonResponse({"error": "No code submitted"}, status=400)
+        
+        user_id = request.session.get('user_id')
+        if not user_id:
+            return JsonResponse({"error": "User not logged in"}, status=401)
+        s_id = SubmissionModel.count()+1
+        data = dict(
+            submission_id= s_id,
+            problem_id= problem_id,
+            user_id=int(user_id),
+            code= str(code))
+        
+
+        if SubmissionModel.insert(data):
+            return HttpResponse(data)
+        else:
+            messages.error(request, "Submission failed")
+
+        return redirect('index')
+    return JsonResponse({"error": "Invalid request"}, status=400)
+     
