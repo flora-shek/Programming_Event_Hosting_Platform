@@ -26,7 +26,7 @@
  <div class ="row mt-3 mb-2">
   <div class ="col">
     <div class="form-floating">        
-      <form action="{% url 'submit' problem_id=problem.problem_id %}" method="post">
+      <form  method="post">
         {% csrf_token %}
         <textarea id="editor" name ="editor" style="height: 230px; display: block;" ></textarea>
         {% include 'codemirrorscript.html' %}

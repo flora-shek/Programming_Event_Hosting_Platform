@@ -348,33 +348,35 @@ def dashboard(request):
     return render(request, 'user_dashboard.html',context)
 
 def code(request,event_id):
-    problem_details = ProblemModel.get_problems_id(event_id)
-    context = {'problem':problem_details[0]}
-    return render(request,"code.html", context)
+    user_id = request.session.get('user_id')
+    event_problems =  ProblemModel.get_problems_id(event_id)
+    
+    if 'current_problem_index' not in request.session:
+        request.session['current_problem_index'] = 0 
+    current_index = request.session['current_problem_index']
+    if current_index >= len(event_problems):
+        del request.session['current_problem_index']
+        messages.success(request, "Submitted Successfully")
+        return redirect('index')
+    
+    problem = event_problems[current_index]
 
-def submit(request,problem_id):
-    if request.method == "POST":
-        code = request.POST.get("editor")  
-        
-        if not code:
-            return JsonResponse({"error": "No code submitted"}, status=400)
-        
-        user_id = request.session.get('user_id')
-        if not user_id:
-            return JsonResponse({"error": "User not logged in"}, status=401)
+    if request.method == 'POST':
+        user_solution = request.POST.get('editor')
+       
         s_id = SubmissionModel.count()+1
         data = dict(
             submission_id= s_id,
-            problem_id= problem_id,
+            problem_id= problem["problem_id"],
             user_id=int(user_id),
-            code= str(code))
-        
-
+            code= str(user_solution))
+        SubmissionModel.delete(user_id,problem["problem_id"])
         if SubmissionModel.insert(data):
-            return HttpResponse(data)
-        else:
-            messages.error(request, "Submission failed")
+            request.session['current_problem_index'] += 1  
+            return redirect('code', event_id=event_id) 
 
-        return redirect('index')
-    return JsonResponse({"error": "Invalid request"}, status=400)
-     
+    return render(request, 'code.html', {'problem': problem})
+
+    context = {'problem':problem_details[0]}
+    return render(request,"code.html", context)
+
