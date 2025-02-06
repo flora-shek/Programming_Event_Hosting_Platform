@@ -35,9 +35,9 @@ class UserModel:
 class EventModel:
     collection = mongo_db['events']
     @staticmethod
-    def create_user(data):
+    def create_event(data):
        
-        return EventModel.collection.insert_one(data).inserted_id
+        return EventModel.collection.insert_one(data)
     
     @staticmethod
     def delete_user(email):

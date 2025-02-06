@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class = "container">
+    <h2 class="mb-4 text-center mt-2">Event Management</h2>
+
+
+    <div class="card mb-4">
+        <div class="card-header">Create Event</div>
+        <div class="card-body">
+            <form method="POST" action="/add_event/">  
+                <div class="mb-3">
+                    <label for="event_name" class="form-label">Event Name</label>
+                    <input type="text" class="form-control" id="event_name" name="event_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event_date" class="form-label">Event start Date</label>
+                    <input type="date" class="form-control" id="event_date" name="event_date" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event_date" class="form-label">Event end Date</label>
+                    <input type="date" class="form-control" id="event_date" name="event_date" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event_date" class="form-label">Registration start Date</label>
+                    <input type="date" class="form-control" id="event_date" name="event_date" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event_date" class="form-label">Registration end Date</label>
+                    <input type="date" class="form-control" id="event_date" name="event_date" required>
+                </div>
+                <div class="mb-3">
+                    <label for="event_description" class="form-label">Event Description</label>
+                    <textarea class="form-control" id="event_description" name="event_description" rows="3" required></textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h2 class="text-center mb-5">Events history</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <!-- Event Card 1 -->
+      <div class="col">
+        <div class="card h-100 shadow-lg border-0 rounded">
+          <div class="card-body">
+            <h5 class="card-title">Coding Marathon</h5>
+            <p class="card-text">Participate in a marathon of programming challenges to test your problem-solving skills.</p>
+            <ul class="list-unstyled">
+              <li><strong>Start Date:</strong> January 10, 2025</li>
+              <li><strong>End Date:</strong> January 12, 2025</li>
+            </ul>
+            <a href="/events/" class="btn btn-primary">View Details</a>
+          </div>
+        </div>
+      </div>
+
+</div>
+{% endblock %}

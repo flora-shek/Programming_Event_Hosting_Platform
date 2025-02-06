@@ -302,7 +302,7 @@ def register_for_event(request, event_id):
             {"event_id": int(event_id)},
             {"$addToSet": {"registrations": int(u_id)}}  
         )
-
+ 
              messages.success(request, "Successfully registered for the event!")
        
              yagmail = YagmailWrapper()
@@ -344,7 +344,7 @@ def dashboard(request):
         'login':True,
         
     }
-
+    
     return render(request, 'user_dashboard.html',context)
 
 def code(request,event_id):
@@ -355,6 +355,10 @@ def code(request,event_id):
         request.session['current_problem_index'] = 0 
     current_index = request.session['current_problem_index']
     if current_index >= len(event_problems):
+        EventModel.collection.update_one(
+            {"event_id": int(event_id)},
+            {"$addToSet": {"participation": int(user_id)}}  
+        )
         del request.session['current_problem_index']
         messages.success(request, "Submitted Successfully")
         return redirect('index')
@@ -377,6 +381,10 @@ def code(request,event_id):
 
     return render(request, 'code.html', {'problem': problem})
 
-    context = {'problem':problem_details[0]}
-    return render(request,"code.html", context)
+def admin(request):
+    
+    return render(request,"admin.html")
+
+def add_problems(request):
+    return render(request,"add_problem.html")
 

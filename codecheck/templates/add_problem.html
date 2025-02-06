@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h2 class="mb-4 mt-2 text-center">Add Problem</h2>
+
+    <!-- Problem Form -->
+    <div class="card mb-4">
+        <div class="card-header">Add Problem</div>
+        <div class="card-body">
+            <form method="POST" action="/add_problem/">
+                <div class="text-end">
+                    <a href="/add_problem/" class="btn btn-primary">Add New Problem</a>
+                </div>
+                <div class="mb-3">
+                    <label for="problem_title" class="form-label">Problem Title</label>
+                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="problem_statement" class="form-label">Problem Description</label>
+                    <textarea class="form-control" id="problem_statement" name="problem_statement" rows="5" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="problem_title" class="form-label">Input Format</label>
+                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="problem_title" class="form-label">Output Format</label>
+                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="problem_title" class="form-label">Sample Input</label>
+                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="problem_title" class="form-label">Sample Output</label>
+                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                </div>
+                <div class="row">
+                  
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Save Problem</button>
+                    </div>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+</div>
+{% endblock %}
