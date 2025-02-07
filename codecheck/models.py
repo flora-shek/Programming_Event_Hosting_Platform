@@ -12,7 +12,7 @@ class UserModel:
         return UserModel.collection.find_one({'email': email})
     @staticmethod
     def get_user_id(user_id):
-        cursor = EventModel.collection.find({'user_id': user_id}).limit(1)
+        cursor = UserModel.collection.find({'user_id': user_id}).limit(1)
         return list(cursor)
     @staticmethod
     def update_user(email, updated_data):
@@ -40,11 +40,11 @@ class EventModel:
         return EventModel.collection.insert_one(data)
     
     @staticmethod
-    def delete_user(email):
+    def delete(email):
        
         return EventModel.collection.delete_one({'email': email})
     @staticmethod
-    def count_users():
+    def count():
        
         return EventModel.collection.count_documents({})
     @staticmethod
@@ -79,10 +79,20 @@ class EventModel:
        
         user_events_list = list(user_events)
         return user_events_list
+    @staticmethod
+    def get_events(id):
+   
+        user_events = EventModel.collection.find({"user_id": id})
+        
+        user_events_list = list(user_events)
+        return user_events_list
 
 class ProblemModel:
     collection = mongo_db['problems']
-
+    @staticmethod
+    def create(data):
+        return ProblemModel.collection.insert_one(data)
+    
     @staticmethod
     def all_event():
         return list(EventModel.collection.find({}))
@@ -91,6 +101,9 @@ class ProblemModel:
        
         cursor = ProblemModel.collection.find({'event_id': event_id})
         return list(cursor)
+    @staticmethod
+    def count():
+        return ProblemModel.collection.count_documents({})
     
 class SubmissionModel:
     collection = mongo_db['submissions']

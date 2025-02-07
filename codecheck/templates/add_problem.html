@@ -9,7 +9,8 @@
     <div class="card mb-4">
         <div class="card-header">Add Problem</div>
         <div class="card-body">
-            <form method="POST" action="/add_problem/">
+            <form method="POST">
+                {% csrf_token %}
                 <div class="text-end">
                     <a href="/add_problem/" class="btn btn-primary">Add New Problem</a>
                 </div>
@@ -23,20 +24,20 @@
                     <textarea class="form-control" id="problem_statement" name="problem_statement" rows="5" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="problem_title" class="form-label">Input Format</label>
-                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                    <label for="problem_ip" class="form-label">Input Format</label>
+                    <input type="text" class="form-control" id="problem_ip" name="problem_ip" required>
                 </div>
                 <div class="mb-3">
-                    <label for="problem_title" class="form-label">Output Format</label>
-                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                    <label for="problem_op" class="form-label">Output Format</label>
+                    <input type="text" class="form-control" id="problem_op" name="problem_op" required>
                 </div>
                 <div class="mb-3">
-                    <label for="problem_title" class="form-label">Sample Input</label>
-                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                    <label for="problem_sip" class="form-label">Sample Input</label>
+                    <input type="text" class="form-control" id="problem_sip" name="problem_sip" required>
                 </div>
                 <div class="mb-3">
-                    <label for="problem_title" class="form-label">Sample Output</label>
-                    <input type="text" class="form-control" id="problem_title" name="problem_title" required>
+                    <label for="problem_sop" class="form-label">Sample Output</label>
+                    <input type="text" class="form-control" id="problem_sop" name="problem_sop" required>
                 </div>
                 <div class="row">
                   

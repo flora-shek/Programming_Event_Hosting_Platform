@@ -382,9 +382,63 @@ def code(request,event_id):
     return render(request, 'code.html', {'problem': problem})
 
 def admin(request):
-    
-    return render(request,"admin.html")
+    u_id = request.session.get("user_id")
+    user_events = EventModel.get_events(int(u_id))
+    for e in user_events:
+        e['status'] = event_status(TODAY,e)
+    context = {
+        'events': user_events,
+        'login':True,
+    }
+    if request.method == 'POST':
+        event_id = EventModel.count()+1
+        user_id = request.session['user_id']
+        name = request.POST.get('event_name')
+        description =request.POST.get('event_description')
+        registration_startdate =request.POST.get('event_rsdate')
+        registration_enddate =request.POST.get('event_redate')
+        event_startdate=request.POST.get('event_sdate')
+        event_enddate =request.POST.get('event_edate')
+        data = {
+            "event_id":event_id,
+            "user_id":int(user_id),
+            "name": name,
+            "description": description,
+            "registration_startdate":registration_startdate,
+            "registration_enddate":registration_enddate,
+            "start_date": event_startdate,
+            "end_date":event_enddate
+        }
+        if EventModel.create_event(data):
+            messages.success(request, "Event created successfully.")
+            redirect('index')
+        else:
+            messages.error(request,"Unknown Error")
+    return render(request,"admin.html",context)
 
-def add_problems(request):
+def add_problems(request,event_id):
+    if request.method == 'POST':
+        problem_id = ProblemModel.count()+1
+        event_id = event_id
+        title = request.POST.get('problem_title')
+        description=request.POST.get('problem_statement')
+        input_format=request.POST.get('problem_op')
+        output_format=request.POST.get('problem_ip')
+        sample_input=request.POST.get('problem_sip')
+        sample_output=request.POST.get('problem_sop')
+        data={
+            "problem_id":problem_id,
+            "event_id":event_id,
+            "title":title,
+            "description":description,
+            "input_format":input_format,
+            "output_format": output_format,
+            "sample_input":sample_input,
+            "sample_output":sample_output
+        }
+        if ProblemModel.create(data):
+            messages.success(request, "Problem created successfully.")
     return render(request,"add_problem.html")
 
+def admin_event(request):
+    return render(request,'admin_event.html')
