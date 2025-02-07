@@ -333,16 +333,19 @@ def dashboard(request):
     user_events = EventModel.get_user_events(int(u_id))
     for e in user_events:
         e['status'] = event_status(TODAY,e)
-        if TODAY == e["start_date"].date() or( TODAY > e["start_date"].date() and TODAY < e["end_date"].date()) or TODAY == e["start_date"].date():
+        if TODAY == e["start_date"].date() or( TODAY > e["start_date"].date() and TODAY < e["end_date"].date()) or TODAY == e["end_date"].date():
             e['notattend'] = False
         else:
-           e['notattend'] = False
-
-   
+           e['notattend'] = True
+    p = False
+    participation = EventModel.get_p_events(int(u_id))
+    if len(participation)>0:
+        p = True
     context = {
         'events': user_events,
         'login':True,
-        
+        'p':p,
+       'parts':participation
     }
     
     return render(request, 'user_dashboard.html',context)
@@ -357,7 +360,7 @@ def code(request,event_id):
     if current_index >= len(event_problems):
         EventModel.collection.update_one(
             {"event_id": int(event_id)},
-            {"$addToSet": {"participation": int(user_id)}}  
+            {"$addToSet": {"participations": int(user_id)}}  
         )
         del request.session['current_problem_index']
         messages.success(request, "Submitted Successfully")
@@ -411,7 +414,7 @@ def admin(request):
         }
         if EventModel.create_event(data):
             messages.success(request, "Event created successfully.")
-            redirect('index')
+            redirect('admin')
         else:
             messages.error(request,"Unknown Error")
     return render(request,"admin.html",context)

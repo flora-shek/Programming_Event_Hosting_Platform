@@ -80,6 +80,13 @@ class EventModel:
         user_events_list = list(user_events)
         return user_events_list
     @staticmethod
+    def get_p_events(id):
+   
+        user_events = EventModel.collection.find({"participations": id})
+       
+        user_events_list = list(user_events)
+        return user_events_list
+    @staticmethod
     def get_events(id):
    
         user_events = EventModel.collection.find({"user_id": id})
