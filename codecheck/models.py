@@ -40,9 +40,9 @@ class EventModel:
         return EventModel.collection.insert_one(data)
     
     @staticmethod
-    def delete(email):
+    def delete(id):
        
-        return EventModel.collection.delete_one({'email': email})
+        return EventModel.collection.delete_one({'event_id': id})
     @staticmethod
     def count():
        

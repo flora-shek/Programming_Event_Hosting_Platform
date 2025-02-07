@@ -42,7 +42,7 @@
             </form>
         </div>
     </div>
-
+{% if events %}
     <h2 class="text-center mb-5">Admin Events</h2>
     {% for x in events %}
     <div class="card mb-4 card-hover" data-aos="fade-up">
@@ -61,7 +61,7 @@
                     </div>
 
                     <!-- Registration Button aligned to the right -->
-                    <a href="{% url 'admin_event' %}" class="btn btn-primary ">
+                    <a href="{% url 'admin_event' x.event_id %}" class="btn btn-primary ">
                         View More Details
                     </a>
                 </div>
@@ -69,6 +69,6 @@
         </div>
     </div>
     {% endfor %}
-    
+{% endif %}
 </div>
 {% endblock %}

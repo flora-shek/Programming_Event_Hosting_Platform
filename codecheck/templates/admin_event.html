@@ -1,5 +1,62 @@
 {% extends "layout.html" %}
 
 {% block content %}
-
+{% include 'toast.html' %}
+  <div class="container mb-5" >
+    <div class="text-center mt-5 mb-5">
+          <h3 class ="fs-2">{{event.name }}</h3>
+    </div>
+    <div class="shadow p-3 mb-5 rounded" style ="background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);" >
+       <div class="container p-3" style ="background:white;" >
+    
+             <div class ="row mt-3 mb-2">
+                <h3 class ="fs-2 text-center">Event Details</h3>
+                <p><strong>Description</strong> <br> {{ event.description }}</p>
+                <p><strong>Event Start Date:</strong> {{ event.start_date|date:"F j, Y " }}</p>
+                <p><strong>Event End Date:</strong> {{ event.end_date|date:"F j, Y " }}</p>
+                <p><strong>Registration Start Date:</strong> {{ event.registration_startdate|date:"F j, Y " }}</p>
+                <p><strong>Registration End Date:</strong> {{ event.registration_enddate|date:"F j, Y " }}</p>
+                <h3 class ="fs-2 text-center">Event Problems</h3>
+              {% if problems %}
+              {% for x in problems %}
+              <div class="card mb-4 card-hover shadow-sm" data-aos="fade-up">
+                <div class="row g-0">
+                    <div class="col-12">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <!-- Event Title and Description -->
+                            <div>
+                                <p><strong>Problem Title:</strong> {{x.title}}</p>
+                                <p><strong>Problem Description:</strong> {{x.description }}</p>
+                                <p><strong>Input Format:</strong> {{ x.input_format }}</p>
+                                <p><strong>Output Format:</strong> {{x.output_format}}</p>
+                                <p><strong>Sample Input:</strong> {{ x.sample_input }}</p>
+                                <p><strong>Sample Output:</strong> {{ x.sample_output }}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+            {% endfor %}
+            {% else %}
+              <p class="fw-bold fs-6 mb-4 text-secondary">Add event problems to display here.</p>
+            {% endif %}
+           </div>
+           <div class="row">
+             <div class="col mt-3">
+                <a href="{% url 'add_problem' event.event_id %}" class="btn btn-primary">Add Problem</a>
+             </div>
+             <div class="col mt-3">
+              <a href="{% url 'delete_event' event.event_id %}" class="btn btn-primary">Delete Event</a>
+             </div>
+             <div class="col mt-3">
+              <a href="" class="btn btn-primary {% if evaluate %} {% else %}  disabled {% endif %}">Evaluate Event</a>
+             </div>
+             <div class="col mt-3">
+              <a href="" class="btn btn-primary{% if evaluate %} {% else %}  disabled {% endif %}">Generate Report</a>
+             </div>
+           </div>
+         </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

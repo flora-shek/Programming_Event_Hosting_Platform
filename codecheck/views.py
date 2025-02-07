@@ -395,10 +395,10 @@ def admin(request):
         user_id = request.session['user_id']
         name = request.POST.get('event_name')
         description =request.POST.get('event_description')
-        registration_startdate =request.POST.get('event_rsdate')
-        registration_enddate =request.POST.get('event_redate')
-        event_startdate=request.POST.get('event_sdate')
-        event_enddate =request.POST.get('event_edate')
+        registration_startdate =datetime.strptime(request.POST.get('event_rsdate'),"%Y-%m-%d")
+        registration_enddate =datetime.strptime(request.POST.get('event_redate'),"%Y-%m-%d")
+        event_startdate=datetime.strptime(request.POST.get('event_sdate'),"%Y-%m-%d")
+        event_enddate =datetime.strptime(request.POST.get('event_edate'),"%Y-%m-%d")
         data = {
             "event_id":event_id,
             "user_id":int(user_id),
@@ -416,7 +416,7 @@ def admin(request):
             messages.error(request,"Unknown Error")
     return render(request,"admin.html",context)
 
-def add_problems(request,event_id):
+def add_problem(request,event_id):
     if request.method == 'POST':
         problem_id = ProblemModel.count()+1
         event_id = event_id
@@ -440,5 +440,27 @@ def add_problems(request,event_id):
             messages.success(request, "Problem created successfully.")
     return render(request,"add_problem.html")
 
-def admin_event(request):
-    return render(request,'admin_event.html')
+def admin_event(request,event_id):
+    event = EventModel.get_event_id(event_id)
+    problems = ProblemModel.get_problems_id(event_id)
+    evaluate = False
+    event[0]['status'] = event_status(TODAY,event[0])
+    if event[0]['status']=="Finished":
+        evaluate = True
+    context = {
+        'event':event[0],
+        "problems":problems,
+        "login":True,
+        "evaluate":evaluate
+    }
+    return render(request,'admin_event.html',context)
+
+def delete_event(request,event_id):
+    if EventModel.delete(event_id):
+        messages.success(request,"Event Deleted Successfully")
+        return redirect('admin')
+    else:
+        messages.success(request,"Unknown Error")
+        return redirect('admin')
+    
+    

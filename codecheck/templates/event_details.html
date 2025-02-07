@@ -8,8 +8,8 @@
     </div>
     <div class="shadow p-3 mb-5 rounded" style ="background-image: linear-gradient(to right top, #bc5f94, #b76daa, #ae7bbe, #a389ce, #9697db, #909ae1, #899ee6, #81a1eb, #7f9bee, #7f95f0, #808ff1, #8388f2);" >
        <div class="container p-3" style ="background:white;" >
-         <form method="post" action="{% url 'register_for_event' event.event_id %}">   
-             {% csrf_token %}
+        <form method="POST" action = "{% url 'register_for_event' event.event_id %}">
+          {% csrf_token %}
              <div class ="row mt-3 mb-2">
                 <p><strong>Description</strong> <br> {{ event.description }}</p>
                 <p><strong>Event Start Date:</strong> {{ event.start_date|date:"F j, Y " }}</p>
@@ -19,10 +19,10 @@
            </div>
            <div class="row">
              <div class="col text-end mt-3">
-                <button type="submit" class="btn btn-primary {% if disable %} {{disabled}} {% endif %}">Register</button>
+                <button type="submit" class="btn btn-primary ">Register</button>
              </div>
            </div>
-         </form>
+        </form>
      
          </div>
     </div>

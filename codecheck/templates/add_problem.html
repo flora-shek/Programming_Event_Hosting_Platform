@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
+{% include 'toast.html' %}
 <div class="container">
 
     <h2 class="mb-4 mt-2 text-center">Add Problem</h2>
@@ -11,9 +12,6 @@
         <div class="card-body">
             <form method="POST">
                 {% csrf_token %}
-                <div class="text-end">
-                    <a href="/add_problem/" class="btn btn-primary">Add New Problem</a>
-                </div>
                 <div class="mb-3">
                     <label for="problem_title" class="form-label">Problem Title</label>
                     <input type="text" class="form-control" id="problem_title" name="problem_title" required>
