@@ -5,7 +5,7 @@ from datetime import datetime
 from django.http import HttpResponse,JsonResponse
 from .email import YagmailWrapper
 from django.template import loader
-from .models import UserModel,EventModel,ProblemModel,SubmissionModel
+from .models import UserModel,EventModel,ProblemModel,SubmissionModel,EvaluationModel
 from werkzeug.security import generate_password_hash,check_password_hash
 import random
 import string
@@ -13,8 +13,9 @@ from textwrap import dedent
 import hashlib
 from django.contrib import messages
 import pytz
-
-
+import json
+from .evaluate import *
+import csv
 TODAY = date.today()
 def save_data(request):
    
@@ -333,12 +334,21 @@ def dashboard(request):
     user_events = EventModel.get_user_events(int(u_id))
     for e in user_events:
         e['status'] = event_status(TODAY,e)
-        if TODAY == e["start_date"].date() or( TODAY > e["start_date"].date() and TODAY < e["end_date"].date()) or TODAY == e["end_date"].date():
+        if  e["status"]=="Ongoing":
             e['notattend'] = False
         else:
-           e['notattend'] = True
+           e['notattend'] = False
+    user_events = [
+    e for e in user_events if event_status(TODAY, e) != "Finished"
+   ]
     p = False
     participation = EventModel.get_p_events(int(u_id))
+    for e in participation:
+        e['status'] = event_status(TODAY,e)
+        if e['status']=="Finished":
+            e["access"]==True
+        else:
+           e['access'] = True
     if len(participation)>0:
         p = True
     context = {
@@ -369,21 +379,35 @@ def code(request,event_id):
     problem = event_problems[current_index]
 
     if request.method == 'POST':
-        user_solution = request.POST.get('editor')
-       
+        user_code = request.POST.get('editor',"").strip()
+        test_cases_text = problem['test_case']
+        correct_code = problem['correct_solution']
+        test_cases_data = json.loads(test_cases_text)
+        test_cases = test_cases_data.get("test_cases", []) 
+                # Evaluate Functional Correctness
+        correctness_score = evaluate_functional_correctness(user_code, test_cases)
+
+                # Evaluate CodeBERT Similarity
+        code_quality_score = evaluate_codebert(user_code,correct_code, model, tokenizer)
+
+                # Calculate Final Score
+        final_score = ((correctness_score ) + (code_quality_score ) )//2
         s_id = SubmissionModel.count()+1
         data = dict(
             submission_id= s_id,
             problem_id= problem["problem_id"],
             user_id=int(user_id),
-            code= str(user_solution))
+            code= str(user_code),correctness=correctness_score+50,code_quality=code_quality_score,final_score=final_score,event_id=event_id)
+           
         SubmissionModel.delete(user_id,problem["problem_id"])
+
         if SubmissionModel.insert(data):
             request.session['current_problem_index'] += 1  
             return redirect('code', event_id=event_id) 
 
     return render(request, 'code.html', {'problem': problem})
 
+   
 def admin(request):
     u_id = request.session.get("user_id")
     user_events = EventModel.get_events(int(u_id))
@@ -410,7 +434,7 @@ def admin(request):
             "registration_startdate":registration_startdate,
             "registration_enddate":registration_enddate,
             "start_date": event_startdate,
-            "end_date":event_enddate
+            "end_date":event_enddate,
         }
         if EventModel.create_event(data):
             messages.success(request, "Event created successfully.")
@@ -429,6 +453,27 @@ def add_problem(request,event_id):
         output_format=request.POST.get('problem_ip')
         sample_input=request.POST.get('problem_sip')
         sample_output=request.POST.get('problem_sop')
+        correct_solution=request.POST.get('correct_solution')
+        test_case = request.POST.get("test_case", "").strip()
+        test_cases = json.loads(test_case)
+
+            # Ensure it's a list
+        if not isinstance(test_cases, list):
+                 messages.error(request, "Test cases must be a list.")
+                 return redirect('index')
+            # Validate each test case
+        for case in test_cases:
+                if not isinstance(case, dict):               
+                    messages.error(request, "Each test case must be a dictionary.")
+                    return redirect('index')
+                if "input" not in case or "expected_output" not in case:
+                    messages.error(request, "Each test case must have 'input' and 'expected_output'.")
+                    return redirect('index')
+                if not isinstance(case["input"], str) or not isinstance(case["expected_output"], str):
+                    messages.error(request, "Both 'input' and 'expected_output' must be strings.")
+                    return redirect('index')
+            
+            
         data={
             "problem_id":problem_id,
             "event_id":event_id,
@@ -437,7 +482,9 @@ def add_problem(request,event_id):
             "input_format":input_format,
             "output_format": output_format,
             "sample_input":sample_input,
-            "sample_output":sample_output
+            "sample_output":sample_output,
+            "correct_solution":correct_solution,
+            "test_case":test_case
         }
         if ProblemModel.create(data):
             messages.success(request, "Problem created successfully.")
@@ -446,10 +493,10 @@ def add_problem(request,event_id):
 def admin_event(request,event_id):
     event = EventModel.get_event_id(event_id)
     problems = ProblemModel.get_problems_id(event_id)
-    evaluate = False
+    evaluate = True
     event[0]['status'] = event_status(TODAY,event[0])
     if event[0]['status']=="Finished":
-        evaluate = True
+        evaluate =True
     context = {
         'event':event[0],
         "problems":problems,
@@ -465,5 +512,61 @@ def delete_event(request,event_id):
     else:
         messages.success(request,"Unknown Error")
         return redirect('admin')
+def delete_problem(request,problem_id):
+    if ProblemModel.delete(problem_id):
+        messages.success(request,"Problem deleted successfully")
+        return redirect('admin')
+
+def event_report(request,event_id):
+    response = HttpResponse(content_type="text/csv")
+    event_name = EventModel.get_event_id(event_id)[0]['name']
+    # 🔥 Add 'attachment' to force download
+    response["Content-Disposition"] = f'attachment; filename=event_{event_name}_report.csv'
+
+    writer = csv.writer(response)
+
     
+    writer.writerow([f"Event Report - Event {event_name}"])
+    writer.writerow([])  
+    total_registrations = len(EventModel.get_event_id(event_id)[0]["registrations"])
+    writer.writerow(["Total Registrations", total_registrations])
+    total_participants = len(EventModel.get_event_id(event_id)[0]["participations"])
+    writer.writerow(["Total Participants", total_participants])
+    writer.writerow([]) 
+    writer.writerow(["Leaderboard"])
+    writer.writerow(["Rank", "Username", "Total Score"])
+
+
     
+
+    leaderboard = rleaderboard(event_id)
+
+   
+
+
+    for rank, entry in enumerate(leaderboard, start=1):
+        writer.writerow([rank, entry["username"], entry["total_score"]])
+
+    return response
+            
+def rleaderboard(event_id):
+    l_board = SubmissionModel.leaderboard(event_id)
+    for i in l_board:
+        i["username"]=UserModel.get_user_id(int(i["_id"]))[0]["name"]
+    
+    return l_board
+def leaderboard(request,event_id):
+    event_name = EventModel.get_event_id(event_id)[0]['name']
+    l_board = SubmissionModel.leaderboard(event_id)
+    for i in l_board:
+        i["user_name"]=UserModel.get_user_id(int(i["_id"]))[0]["name"]
+    
+    context ={
+        "event_name":event_name,
+        "leader":l_board,
+        "login":True
+    }
+    return render(request,'leaderboard.html',context)
+   
+    
+

@@ -34,6 +34,7 @@ class UserModel:
     
 class EventModel:
     collection = mongo_db['events']
+   
     @staticmethod
     def create_event(data):
        
@@ -99,7 +100,10 @@ class ProblemModel:
     @staticmethod
     def create(data):
         return ProblemModel.collection.insert_one(data)
-    
+    @staticmethod
+    def delete(id):
+       
+        return ProblemModel.collection.delete_one({'problem_id':id})
     @staticmethod
     def all_event():
         return list(EventModel.collection.find({}))
@@ -114,12 +118,17 @@ class ProblemModel:
     
 class SubmissionModel:
     collection = mongo_db['submissions']
+   
     @staticmethod
     def insert(data):
         return SubmissionModel.collection.insert_one(data)
     @staticmethod
     def find(problem_id, user_id):
         cursor = SubmissionModel.collection.find({'user_id': user_id, 'problem_id': problem_id})
+        return list(cursor)
+    @staticmethod
+    def find1(problem_id):
+        cursor = SubmissionModel.collection.find({'problem_id': problem_id})
         return list(cursor)
 
     @staticmethod
@@ -130,3 +139,19 @@ class SubmissionModel:
     def delete(user_id,problem_id):
        
         return SubmissionModel.collection.delete_one({'user_id': user_id,'problem_id':problem_id})
+    @staticmethod
+    def leaderboard(event_id):
+        leaderboard_data = list(SubmissionModel.collection.aggregate([
+        {"$match": {"event_id": event_id}},  # Get submissions for the event
+        {"$group": {"_id": "$user_id", "total_score": {"$sum": "$final_score"}}},  
+        {"$sort": {"total_score": -1}}  # Sort descending
+    ]))
+        return leaderboard_data
+class EvaluationModel:
+    collection = mongo_db['evaluation']
+    @staticmethod
+    def count():
+        return EvaluationModel.collection.count_documents({})
+    @staticmethod
+    def insert(data):
+        return EvaluationModel.collection.insert_one(data)

@@ -5,7 +5,7 @@
   <div class="container">
       <nav class="navbar mt-3 p-3 rounded shadow-sm mb-4" style="background-color:rgba(207, 199, 253, 0.85);">
           <div class="container-fluid">
-              <h2 class="section-title text-center" data-aos="fade-up">My Events</h2>
+              <h2 class="section-title text-center" data-aos="fade-up">Upcoming/Ongoing Events</h2>
 
              
           </div>
@@ -56,8 +56,8 @@
                           
                     </div>
 
-                    <a href="" class="btn btn-primary ">
-                        View More Details
+                    <a href="{% url 'leaderboard' y.event_id %}" class="btn btn-primary {% if y.access %} {% else %} disabled {% endif %} ">
+                        View Leaderboard
                     </a>
                 </div>
             </div>

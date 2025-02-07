@@ -22,6 +22,10 @@
                     <textarea class="form-control" id="problem_statement" name="problem_statement" rows="5" required></textarea>
                 </div>
                 <div class="mb-3">
+                    <label for="correct_solution" class="form-label">Correct Solution</label>
+                    <textarea class="form-control" id="correct_solution" name="correct_solution" rows="5" required></textarea>
+                </div>
+                <div class="mb-3">
                     <label for="problem_ip" class="form-label">Input Format</label>
                     <input type="text" class="form-control" id="problem_ip" name="problem_ip" required>
                 </div>
@@ -37,6 +41,10 @@
                     <label for="problem_sop" class="form-label">Sample Output</label>
                     <input type="text" class="form-control" id="problem_sop" name="problem_sop" required>
                 </div>
+                <div class="mb-3">
+                    <label for="test_case" class="form-label">Paste Test Cases (JSON Format)</label>
+                    <textarea class="form-control" id="test_case" name="test_case" rows="10" cols="50" required></textarea>
+                </div>
                 <div class="row">
                   
                     <div class="text-end">
@@ -47,6 +55,6 @@
             
         </div>
     </div>
-
+   
 </div>
 {% endblock %}

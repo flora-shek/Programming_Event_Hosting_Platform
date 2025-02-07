@@ -17,6 +17,9 @@ urlpatterns = [
     path('codeadmin/addproblem/<int:event_id>/', views.add_problem, name='add_problem'),
     path('codeadmin/admin_event/<int:event_id>/', views.admin_event,name="admin_event"),
     path('codeadmin/delete_event/<int:event_id>/', views.delete_event,name="delete_event"),
+    path('codeadmin/delete_problem/<int:problem_id>/', views.delete_problem,name="delete_problem"),
+    path('leaderboard/<int:event_id>/', views.leaderboard, name='leaderboard'),
+    path("codeadmin/<int:event_id>/report/csv/", views.event_report, name="event_report"),
  
    
 ]
