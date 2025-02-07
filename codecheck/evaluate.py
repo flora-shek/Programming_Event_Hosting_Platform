@@ -1,5 +1,5 @@
 import json
-import timeit
+
 import subprocess
 import torch
 from django.shortcuts import render

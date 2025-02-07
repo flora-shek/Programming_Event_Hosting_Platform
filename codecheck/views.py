@@ -12,11 +12,12 @@ import string
 from textwrap import dedent
 import hashlib
 from django.contrib import messages
-import pytz
+import random
 import json
 from .evaluate import *
 import csv
 TODAY = date.today()
+number = random.randint(1, 100)
 def save_data(request):
    
     hash = UserModel.get_user("florashek24@gmail.com")['password']
@@ -392,12 +393,13 @@ def code(request,event_id):
 
                 # Calculate Final Score
         final_score = ((correctness_score ) + (code_quality_score ) )//2
+        
         s_id = SubmissionModel.count()+1
         data = dict(
             submission_id= s_id,
             problem_id= problem["problem_id"],
             user_id=int(user_id),
-            code= str(user_code),correctness=correctness_score+50,code_quality=code_quality_score,final_score=final_score,event_id=event_id)
+            code= str(user_code),correctness=correctness_score+number,code_quality=code_quality_score,final_score=final_score,event_id=event_id)
            
         SubmissionModel.delete(user_id,problem["problem_id"])
 
@@ -570,3 +572,10 @@ def leaderboard(request,event_id):
    
     
 
+def profile(request):
+    user = request.session["user_id"]
+    role = UserModel.get_user_id(int(user))[0]["role"]
+    if role=="admin":
+        return redirect('admin')
+    else:
+        return redirect('dashboard')
