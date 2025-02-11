@@ -2,7 +2,6 @@ import json
 
 import subprocess
 import torch
-from django.shortcuts import render
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Load CodeBERT model and tokenizer (one-time load)
@@ -18,7 +17,7 @@ def run_code(user_code, input_data):
             ["python3", "-c", user_code], input=input_data.encode(),
             capture_output=True, text=True, timeout=5
         )
-        return process.stdout.strip()  # Get only output
+        return process.stdout.strip()  
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -50,7 +49,7 @@ def evaluate_functional_correctness(user_code, test_cases):
 
  
 
-def evaluate_codebert(user_code, correct_code, model, tokenizer):
+def evaluate_codebert(user_code, correct_code):
     try:
         inputs = tokenizer(user_code, correct_code, return_tensors="pt", padding=True, truncation=True)
         outputs = model(**inputs)

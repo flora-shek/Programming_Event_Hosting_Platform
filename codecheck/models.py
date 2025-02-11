@@ -6,7 +6,11 @@ class UserModel:
     @staticmethod
     def create_user(data):
         return UserModel.collection.insert_one(data).inserted_id
-
+    @staticmethod
+    def get_all_email():
+        email = UserModel.collection.find({"role":"user"},{"email":1,"_id":0})
+        e_list = [user["email"] for user in email]
+        return e_list
     @staticmethod
     def get_user(email):
         return UserModel.collection.find_one({'email': email})

@@ -31,7 +31,7 @@ def index(request):
         messages.success(request,f"Welcome back! {name}")
         return render(request, 'home.html',{'login':True})
     else:
-        return redirect('login')  
+        return render(request, 'home.html',{'login':False,"new_user":True})
 
 
 
@@ -237,7 +237,7 @@ def events(request):
    
     # Fetch all events initially
     events = EventModel.all_event()
-   
+    login = False
     
     if request.method == 'POST':
         search_term = request.POST.get("esearch")
@@ -246,9 +246,12 @@ def events(request):
             events = EventModel.search_event(search_term)
     for e in events:
         e['status'] = event_status(TODAY,e)
+
+    if 'user_id' in request.session:
+        login = True
     context = {
         'events': events,
-        'login':True,
+        'login':login,
       
         
     }
@@ -338,7 +341,7 @@ def dashboard(request):
         if  e["status"]=="Ongoing":
             e['notattend'] = False
         else:
-           e['notattend'] = False
+           e['notattend'] = True
     user_events = [
     e for e in user_events if event_status(TODAY, e) != "Finished"
    ]
@@ -349,7 +352,7 @@ def dashboard(request):
         if e['status']=="Finished":
             e["access"]==True
         else:
-           e['access'] = True
+           e['access'] = False
     if len(participation)>0:
         p = True
     context = {
@@ -389,7 +392,7 @@ def code(request,event_id):
         correctness_score = evaluate_functional_correctness(user_code, test_cases)
 
                 # Evaluate CodeBERT Similarity
-        code_quality_score = evaluate_codebert(user_code,correct_code, model, tokenizer)
+        code_quality_score = evaluate_codebert(user_code,correct_code)
 
                 # Calculate Final Score
         final_score = ((correctness_score ) + (code_quality_score ) )//2
@@ -409,7 +412,9 @@ def code(request,event_id):
 
     return render(request, 'code.html', {'problem': problem})
 
-   
+def email_notification(email,subject,body):
+    yagmail = YagmailWrapper()
+    yagmail.send_email(email, subject, body)   
 def admin(request):
     u_id = request.session.get("user_id")
     user_events = EventModel.get_events(int(u_id))
@@ -437,8 +442,32 @@ def admin(request):
             "registration_enddate":registration_enddate,
             "start_date": event_startdate,
             "end_date":event_enddate,
+            "participations":[],
+            "registrations":[]
         }
         if EventModel.create_event(data):
+            all_email = UserModel.get_all_email()
+            subject = "Event Creation Alert"
+            body = dedent(f"""
+                    Hello folks,
+                        New exciting Event has been added.
+                          
+                        Event Details
+                          
+                        Event name: {name}
+                        Event description: {description}
+                        Registration start date:{registration_startdate}
+                        Registration end date:{registration_enddate}
+                        Event start date: {event_startdate}
+                        Event end date:{event_enddate}
+                         
+
+                    Best regards,
+                    The Code Evaluator Team
+                """) 
+            for i in all_email:
+
+                email_notification(i,subject,body)
             messages.success(request, "Event created successfully.")
             redirect('admin')
         else:
@@ -495,7 +524,7 @@ def add_problem(request,event_id):
 def admin_event(request,event_id):
     event = EventModel.get_event_id(event_id)
     problems = ProblemModel.get_problems_id(event_id)
-    evaluate = True
+    evaluate = False
     event[0]['status'] = event_status(TODAY,event[0])
     if event[0]['status']=="Finished":
         evaluate =True
@@ -539,12 +568,7 @@ def event_report(request,event_id):
     writer.writerow(["Rank", "Username", "Total Score"])
 
 
-    
-
     leaderboard = rleaderboard(event_id)
-
-   
-
 
     for rank, entry in enumerate(leaderboard, start=1):
         writer.writerow([rank, entry["username"], entry["total_score"]])
