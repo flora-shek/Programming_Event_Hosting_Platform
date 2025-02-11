@@ -3,14 +3,13 @@
 {% block content %}
 {% include 'toast.html' %}
   <div class="container">
+  
       <nav class="navbar mt-3 p-3 rounded shadow-sm mb-4" style="background-color:rgba(207, 199, 253, 0.85);">
           <div class="container-fluid">
               <h2 class="section-title text-center" data-aos="fade-up">Upcoming/Ongoing Events</h2>
-
-             
           </div>
       </nav>
-
+   {% if events %}
       {% for x in events %}
       <div class="card mb-4 card-hover" data-aos="fade-up">
           <div class="row g-0">
@@ -36,6 +35,9 @@
           </div>
       </div>
       {% endfor %}
+   {% else%}
+        <p class="text-muted">No upcoming events.</p>
+    {% endif %}
 {% if p %}
     <nav class="navbar mt-3 p-3 rounded shadow-sm mb-4" style="background-color:rgba(207, 199, 253, 0.85);">
           <div class="container-fluid">

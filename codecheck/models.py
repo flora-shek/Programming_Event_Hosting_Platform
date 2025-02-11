@@ -151,11 +151,3 @@ class SubmissionModel:
         {"$sort": {"total_score": -1}}  # Sort descending
     ]))
         return leaderboard_data
-class EvaluationModel:
-    collection = mongo_db['evaluation']
-    @staticmethod
-    def count():
-        return EvaluationModel.collection.count_documents({})
-    @staticmethod
-    def insert(data):
-        return EvaluationModel.collection.insert_one(data)

@@ -5,19 +5,18 @@ from datetime import datetime
 from django.http import HttpResponse,JsonResponse
 from .email import YagmailWrapper
 from django.template import loader
-from .models import UserModel,EventModel,ProblemModel,SubmissionModel,EvaluationModel
+from .models import UserModel,EventModel,ProblemModel,SubmissionModel
 from werkzeug.security import generate_password_hash,check_password_hash
 import random
 import string
 from textwrap import dedent
 import hashlib
 from django.contrib import messages
-import random
 import json
 from .evaluate import *
 import csv
 TODAY = date.today()
-number = random.randint(1, 100)
+
 def save_data(request):
    
     hash = UserModel.get_user("florashek24@gmail.com")['password']
@@ -280,17 +279,15 @@ def event_details(request,id):
 
 def register_for_event(request, event_id):
     if request.method == "POST":
-        # Ensure the user is logged in
+       
         u_id = request.session.get("user_id")
         if not u_id:
             messages.error(request, "You must be logged in to register for an event.")
             return redirect('login')  
-
-        # Get the event
         event = EventModel.get_event_id(int(event_id))
         event_name = event[0]['name']
         mail = UserModel.get_user_id(int(u_id))
-        email = mail[0]['name'] #key error
+        email = mail[0]['name'] 
 
         if TODAY < event[0]['registration_startdate'].date():
             messages.error(request, "Registration for this event has not started yet.")
@@ -298,11 +295,14 @@ def register_for_event(request, event_id):
         elif TODAY > event[0]['registration_enddate'].date():
             messages.error(request, "Registration for this event has already closed.")
             return redirect('events')
+        elif mail[0]["role"]!="user":
+            messages.error(request, "Admin can't register for events.")
+            return redirect('events')
         
         if int(u_id) in event[0]["registrations"]:
             messages.warning(request, "You are already registered for this event.")
         else:
-            # Add user to the registrations list
+
              EventModel.collection.update_one(
             {"event_id": int(event_id)},
             {"$addToSet": {"registrations": int(u_id)}}  
@@ -348,11 +348,11 @@ def dashboard(request):
     p = False
     participation = EventModel.get_p_events(int(u_id))
     for e in participation:
+        e['access']=False
         e['status'] = event_status(TODAY,e)
         if e['status']=="Finished":
-            e["access"]==True
-        else:
-           e['access'] = False
+            e['access']=True
+       
     if len(participation)>0:
         p = True
     context = {
@@ -387,7 +387,7 @@ def code(request,event_id):
         test_cases_text = problem['test_case']
         correct_code = problem['correct_solution']
         test_cases_data = json.loads(test_cases_text)
-        test_cases = test_cases_data.get("test_cases", []) 
+        test_cases =json.loads(test_cases_text)
                 # Evaluate Functional Correctness
         correctness_score = evaluate_functional_correctness(user_code, test_cases)
 
@@ -395,14 +395,14 @@ def code(request,event_id):
         code_quality_score = evaluate_codebert(user_code,correct_code)
 
                 # Calculate Final Score
-        final_score = ((correctness_score ) + (code_quality_score ) )//2
+        final_score = ((correctness_score) + (code_quality_score ) )//2
         
         s_id = SubmissionModel.count()+1
         data = dict(
             submission_id= s_id,
             problem_id= problem["problem_id"],
             user_id=int(user_id),
-            code= str(user_code),correctness=correctness_score+number,code_quality=code_quality_score,final_score=final_score,event_id=event_id)
+            code= str(user_code),correctness=correctness_score,code_quality=code_quality_score,final_score=final_score,event_id=event_id)
            
         SubmissionModel.delete(user_id,problem["problem_id"])
 
@@ -488,11 +488,9 @@ def add_problem(request,event_id):
         test_case = request.POST.get("test_case", "").strip()
         test_cases = json.loads(test_case)
 
-            # Ensure it's a list
         if not isinstance(test_cases, list):
                  messages.error(request, "Test cases must be a list.")
                  return redirect('index')
-            # Validate each test case
         for case in test_cases:
                 if not isinstance(case, dict):               
                     messages.error(request, "Each test case must be a dictionary.")
@@ -500,10 +498,15 @@ def add_problem(request,event_id):
                 if "input" not in case or "expected_output" not in case:
                     messages.error(request, "Each test case must have 'input' and 'expected_output'.")
                     return redirect('index')
-                if not isinstance(case["input"], str) or not isinstance(case["expected_output"], str):
-                    messages.error(request, "Both 'input' and 'expected_output' must be strings.")
+
+                if not isinstance(case["input"], (list, int, float, str)):
+                    messages.error(request, "Test case 'input' must be a list, number, or string.")
                     return redirect('index')
-            
+
+                if not isinstance(case["expected_output"], (int, float, list, str, bool)):
+                    messages.error(request, "Test case 'expected_output' must be a valid JSON-compatible type (int, float, list, string, or bool).")
+                    return redirect('index')
+                        
             
         data={
             "problem_id":problem_id,
@@ -551,7 +554,7 @@ def delete_problem(request,problem_id):
 def event_report(request,event_id):
     response = HttpResponse(content_type="text/csv")
     event_name = EventModel.get_event_id(event_id)[0]['name']
-    # 🔥 Add 'attachment' to force download
+  
     response["Content-Disposition"] = f'attachment; filename=event_{event_name}_report.csv'
 
     writer = csv.writer(response)
@@ -593,9 +596,6 @@ def leaderboard(request,event_id):
         "login":True
     }
     return render(request,'leaderboard.html',context)
-   
-    
-
 def profile(request):
     user = request.session["user_id"]
     role = UserModel.get_user_id(int(user))[0]["role"]
