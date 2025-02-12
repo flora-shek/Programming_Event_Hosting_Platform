@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from datetime import datetime, timedelta,date
+from datetime import datetime, timedelta,date,timezone
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.http import HttpResponse,JsonResponse
@@ -9,6 +9,7 @@ from .models import UserModel,EventModel,ProblemModel,SubmissionModel
 from werkzeug.security import generate_password_hash,check_password_hash
 import random
 import string
+
 from textwrap import dedent
 import hashlib
 from django.contrib import messages
@@ -31,7 +32,6 @@ def index(request):
         return render(request, 'home.html',{'login':True})
     else:
         return render(request, 'home.html',{'login':False,"new_user":True})
-
 
 
 @csrf_exempt
@@ -254,7 +254,7 @@ def events(request):
       
         
     }
-
+    
     return render(request, 'event.html', context)
 
 def event_details(request,id):
@@ -279,7 +279,6 @@ def event_details(request,id):
 
 def register_for_event(request, event_id):
     if request.method == "POST":
-       
         u_id = request.session.get("user_id")
         if not u_id:
             messages.error(request, "You must be logged in to register for an event.")
@@ -433,6 +432,40 @@ def admin(request):
         registration_enddate =datetime.strptime(request.POST.get('event_redate'),"%Y-%m-%d")
         event_startdate=datetime.strptime(request.POST.get('event_sdate'),"%Y-%m-%d")
         event_enddate =datetime.strptime(request.POST.get('event_edate'),"%Y-%m-%d")
+         
+    
+        if registration_startdate.date()< TODAY:
+            messages.error(request,"Registration start date cannot be in the past.")
+            return redirect('admin')
+
+        if registration_enddate.date() < TODAY:
+            messages.error(request,"Registration end date cannot be in the past.")
+            return redirect('admin')
+
+
+        if event_startdate.date() < TODAY:
+            messages.error(request,"Event start date cannot be in the past.")
+            return redirect('admin')
+
+        if event_enddate.date() < TODAY:
+            messages.error(request,"Event end date cannot be in the past.")
+            return redirect('admin')
+
+        # 2. Validate registration period
+        if registration_enddate.date() < registration_startdate.date():
+            messages.error(request,"Registration end date cannot be before registration start date.")
+            return redirect('admin')
+
+        # 3. Ensure event starts after registration ends
+        if event_startdate.date() < registration_enddate.date():
+            messages.error(request,"Event start date must be after the registration end date.")
+            return redirect('admin')
+
+        # 4. Event start and end validation
+        if event_enddate.date() < event_startdate.date():
+            messages.error(request,"Event end time must be after event start time.")
+            return redirect('admin')
+
         data = {
             "event_id":event_id,
             "user_id":int(user_id),
@@ -487,7 +520,7 @@ def add_problem(request,event_id):
         correct_solution=request.POST.get('correct_solution')
         test_case = request.POST.get("test_case", "").strip()
         test_cases = json.loads(test_case)
-
+        
         if not isinstance(test_cases, list):
                  messages.error(request, "Test cases must be a list.")
                  return redirect('index')
@@ -509,7 +542,7 @@ def add_problem(request,event_id):
                         
             
         data={
-            "problem_id":problem_id,
+            "problem_id":ProblemModel.count()+1,
             "event_id":event_id,
             "title":title,
             "description":description,

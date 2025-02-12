@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
+{% include 'toast.html' %}
 <div class = "container">
     <h2 class="mb-4 text-center mt-2">Event Management</h2>
 
@@ -27,11 +28,11 @@
                     <input type="date" class="form-control" id="event_redate" name="event_redate" required>
                 </div>
                 <div class="mb-3">
-                    <label for="event_sdate" class="form-label">Event start Date</label>
+                    <label for="event_sdate" class="form-label">Event start date</label>
                     <input type="date" class="form-control" id="event_sdate" name="event_sdate" required>
                 </div>
                 <div class="mb-3">
-                    <label for="event_edate" class="form-label">Event end Date</label>
+                    <label for="event_edate" class="form-label">Event end date</label>
                     <input type="date" class="form-control" id="event_edate" name="event_edate" required>
                 </div>
                
