@@ -1,5 +1,5 @@
 from .mongodb import mongo_db
-
+from datetime import datetime
 class UserModel:
     collection = mongo_db['user'] 
 
@@ -38,7 +38,7 @@ class UserModel:
     
 class EventModel:
     collection = mongo_db['events']
-   
+    
     @staticmethod
     def create_event(data):
        
@@ -122,7 +122,15 @@ class ProblemModel:
     
 class SubmissionModel:
     collection = mongo_db['submissions']
-   
+    
+    @staticmethod
+    def verify_s(user_id , problem_id):
+        cursor = SubmissionModel.collection.find({
+  user_id: user_id,
+  problem_id: problem_id
+})
+        return list(cursor)
+
     @staticmethod
     def insert(data):
         return SubmissionModel.collection.insert_one(data)
@@ -146,8 +154,8 @@ class SubmissionModel:
     @staticmethod
     def leaderboard(event_id):
         leaderboard_data = list(SubmissionModel.collection.aggregate([
-        {"$match": {"event_id": event_id}},  # Get submissions for the event
+        {"$match": {"event_id": event_id}},  
         {"$group": {"_id": "$user_id", "total_score": {"$sum": "$final_score"}}},  
-        {"$sort": {"total_score": -1}}  # Sort descending
+        {"$sort": {"total_score": -1}}                      
     ]))
         return leaderboard_data

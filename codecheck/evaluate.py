@@ -32,7 +32,7 @@ print(json.dumps({function_name}(*args)))  # Ensure JSON output
             input=json.dumps(input_data),
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=10
         )
         return process.stdout.strip()
     except Exception as e:

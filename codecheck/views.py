@@ -246,13 +246,12 @@ def events(request):
     for e in events:
         e['status'] = event_status(TODAY,e)
 
+    events = sorted(events, key=lambda e: ("Upcoming", "Ongoing", "Finished").index(e['status']))
     if 'user_id' in request.session:
         login = True
     context = {
         'events': events,
         'login':login,
-      
-        
     }
     
     return render(request, 'event.html', context)
@@ -404,7 +403,6 @@ def code(request,event_id):
             code= str(user_code),correctness=correctness_score,code_quality=code_quality_score,final_score=final_score,event_id=event_id)
            
         SubmissionModel.delete(user_id,problem["problem_id"])
-
         if SubmissionModel.insert(data):
             request.session['current_problem_index'] += 1  
             return redirect('code', event_id=event_id) 
@@ -467,7 +465,7 @@ def admin(request):
             return redirect('admin')
 
         data = {
-            "event_id":event_id,
+            "event_id":EventModel.count()+1,
             "user_id":int(user_id),
             "name": name,
             "description": description,
@@ -489,10 +487,10 @@ def admin(request):
                           
                         Event name: {name}
                         Event description: {description}
-                        Registration start date:{registration_startdate}
-                        Registration end date:{registration_enddate}
-                        Event start date: {event_startdate}
-                        Event end date:{event_enddate}
+                        Registration start date:{registration_startdate.date()}
+                        Registration end date:{registration_enddate.date()}
+                        Event start date: {event_startdate.date()}
+                        Event end date:{event_enddate.date()}
                          
 
                     Best regards,
@@ -617,7 +615,7 @@ def rleaderboard(event_id):
         i["username"]=UserModel.get_user_id(int(i["_id"]))[0]["name"]
     
     return l_board
-def leaderboard(request,event_id):
+def leaderboard(request, event_id):
     event_name = EventModel.get_event_id(event_id)[0]['name']
     l_board = SubmissionModel.leaderboard(event_id)
     for i in l_board:
