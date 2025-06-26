@@ -1,8 +1,9 @@
-🖥️ Programming Event Hosting Platform
-📌 Overview
+Programming Event Hosting Platform
+
+Overview
 This platform allows institutions or organizers to host online programming events where participants can register, solve problems, submit code, and get evaluated.
 
-🎯 Features
+Features
 Event creation and management by admins
 
 Problem statements uploaded per event
@@ -15,7 +16,7 @@ Code evaluation using AI (CodeBERT-based semantic checking)
 
 Real-time leaderboard and result publishing
 
-🛠️ How It Works
+How It Works
 Admin creates an event and uploads programming problems.
 
 Users register for the event and log in.
@@ -26,16 +27,13 @@ The system evaluates submissions using AI-based logic.
 
 Leaderboard is generated and results are displayed.
 
-🔧 Tech Stack
+Tech Stack
 Backend: Django
-
 Database: MongoDB
-
 AI Evaluation: CodeBERT
 
 Frontend: HTML/CSS (custom admin panel included)
 
-👩‍💻 Roles
+Roles
 Admin: Manages events, problems, and evaluations
-
 User: Registers, submits code, and views leaderboard
